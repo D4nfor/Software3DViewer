@@ -22,8 +22,8 @@ public class GraphicConveyor {
         float sin = (float) Math.sin(angle);
         float[][] data = new float[][]{
                 {1, 0, 0, 0},
-                {0, cos, sin, 0},
-                {0, -sin, cos, 0},
+                {0, cos, -sin, 0},
+                {0, sin, cos, 0},
                 {0, 0, 0, 1}
         };
         return new Matrix4f(data);
@@ -47,8 +47,8 @@ public class GraphicConveyor {
         float cos = (float) Math.cos(angle);
         float sin = (float) Math.sin(angle);
         float[][] data = new float[][]{
-                {cos, sin, 0, 0},
-                {-sin, cos, 0, 0},
+                {cos, -sin, 0, 0},
+                {sin, cos, 0, 0},
                 {0, 0, 1, 0},
                 {0, 0, 0, 1}
         };
@@ -141,17 +141,30 @@ public class GraphicConveyor {
         return new Matrix4f(data);
     }
 
-    public static Vector3f multiplyMatrix4ByVector3(Matrix4f matrix, Vector3f vertex) {
+    public static Vector3f multiplyMatrix4ByVector3(Matrix4f m, Vector3f v) {
         // Умножение матрицы на вектор-столбец
-        float x = vertex.getX() * matrix.get(0,0) + vertex.getY() * matrix.get(0,1) + vertex.getZ() * matrix.get(0,2) + matrix.get(0,3);
-        float y = vertex.getX() * matrix.get(1,0) + vertex.getY() * matrix.get(1,1) + vertex.getZ() * matrix.get(1,2) + matrix.get(1,3);
-        float z = vertex.getX() * matrix.get(2,0) + vertex.getY() * matrix.get(2,1) + vertex.getZ() * matrix.get(2,2) + matrix.get(2,3);
-        float w = vertex.getX() * matrix.get(3,0) + vertex.getY() * matrix.get(3,1) + vertex.getZ() * matrix.get(3,2) + matrix.get(3,3);
+        // используем Vector4f явно
+        float x = v.getX(), y = v.getY(), z = v.getZ(), w = 1.0f;
+        float rx = m.get(0,0)*x + m.get(0,1)*y + m.get(0,2)*z + m.get(0,3)*w;
+        float ry = m.get(1,0)*x + m.get(1,1)*y + m.get(1,2)*z + m.get(1,3)*w;
+        float rz = m.get(2,0)*x + m.get(2,1)*y + m.get(2,2)*z + m.get(2,3)*w;
+        float rw = m.get(3,0)*x + m.get(3,1)*y + m.get(3,2)*z + m.get(3,3)*w;
 
-        return new Vector3f(x / w, y / w, z / w);
+        if (Math.abs(rw) < 1e-6f) {
+            // не делим на ноль — можно вернуть без деления или с eps
+            return new Vector3f(rx, ry, rz); // или rx/eps...
+        }
+
+        return new Vector3f(rx / rw, ry / rw, rz / rw);
     }
 
-    public static Point2f vertexToPoint(Vector3f vertex, int width, int height) {
-        return new Point2f(vertex.getX() * width + width / 2.0f, vertex.getY() * height + height / 2.0f);
+    public static Point2f vertexToPoint(Vector3f v, int width, int height) {
+        // предполагаем, что v.x, v.y находятся в [-1, 1]
+        float x_ndc = v.getX();
+        float y_ndc = v.getY();
+        float x_screen = (x_ndc + 1.0f) * 0.5f * width;          // (x+1)/2 * width
+        float y_screen = (y_ndc + 1.0f) * 0.5f * height; // flip Y: top-left origin
+        return new Point2f(x_screen, y_screen);
     }
+
 }
