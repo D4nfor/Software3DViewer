@@ -11,22 +11,49 @@ import com.cgvsu.model.Model;
 import static com.cgvsu.render_engine.GraphicConveyor.*;
 
 public class RenderEngine {
+    // Старый метод для обратной совместимости
+    public static void render(
+            final GraphicsContext graphicsContext,
+            final Camera camera,
+            final Model mesh,
+            final int width,
+            final int height) {
+
+        Matrix4f modelMatrix = rotateScaleTranslate();
+        Matrix4f viewMatrix = camera.getViewMatrix();
+        Matrix4f projectionMatrix = camera.getProjectionMatrix();
+
+        Matrix4f modelViewProjectionMatrix = projectionMatrix.multiply(viewMatrix).multiply(modelMatrix);
+
+        renderModel(graphicsContext, mesh, modelViewProjectionMatrix, width, height);
+    }
 
     public static void render(
             final GraphicsContext graphicsContext,
             final Camera camera,
             final Model mesh,
             final int width,
-            final int height)
+            final int height,
+            final Transform transform)
     {
         // Матрицы преобразования
-        Matrix4f modelMatrix = rotateScaleTranslate();
+        Matrix4f modelMatrix = createModelMatrix(transform);
         Matrix4f viewMatrix = camera.getViewMatrix();
         Matrix4f projectionMatrix = camera.getProjectionMatrix();
 
         // Правильный порядок для векторов-столбцов
         // MVP = projection * view * model
         Matrix4f modelViewProjectionMatrix = projectionMatrix.multiply(viewMatrix).multiply(modelMatrix);
+
+        renderModel(graphicsContext, mesh, modelViewProjectionMatrix, width, height);
+    }
+
+    private static void renderModel(
+            final GraphicsContext graphicsContext,
+            final Model mesh,
+            final Matrix4f modelViewProjectionMatrix,
+            final int width,
+            final int height) {
 
         final int nPolygons = mesh.polygons.size();
         for (int polygonInd = 0; polygonInd < nPolygons; ++polygonInd) {
@@ -60,5 +87,13 @@ public class RenderEngine {
                 graphicsContext.strokeLine(last.getX(), last.getY(), first.getX(), first.getY());
             }
         }
+    }
+
+    private static Matrix4f createModelMatrix(Transform transform) {
+        return GraphicConveyor.createModelMatrix(
+                transform.getScaleX(), transform.getScaleY(), transform.getScaleZ(),
+                transform.getRotateX(), transform.getRotateY(), transform.getRotateZ(),
+                transform.getTranslateX(), transform.getTranslateY(), transform.getTranslateZ()
+        );
     }
 }
