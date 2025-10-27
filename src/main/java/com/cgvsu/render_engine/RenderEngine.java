@@ -91,9 +91,9 @@ public class RenderEngine {
 
     private static Matrix4f createModelMatrix(Transform transform) {
         return GraphicConveyor.createModelMatrix(
-                transform.getScaleX(), transform.getScaleY(), transform.getScaleZ(),
-                transform.getRotateX(), transform.getRotateY(), transform.getRotateZ(),
-                transform.getTranslateX(), transform.getTranslateY(), transform.getTranslateZ()
+                transform.scaleX, transform.scaleY, transform.scaleZ,
+                transform.rotateX, transform.rotateY, transform.rotateZ,
+                transform.translateX, transform.translateY, transform.translateZ
         );
     }
 }
