@@ -1,7 +1,5 @@
-package math.tests;
+package com.cgvsu.math;
 
-import com.cgvsu.math.Point2f;
-import com.cgvsu.math.Vector2f;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 

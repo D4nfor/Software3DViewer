@@ -1,6 +1,5 @@
-package math.tests;
+package com.cgvsu.math;
 
-import math.model.Vector2f;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 

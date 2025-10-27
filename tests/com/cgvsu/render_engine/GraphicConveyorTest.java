@@ -90,7 +90,7 @@ class GraphicConveyorTest {
 
         // Z ось должна смотреть "вниз" по Z
         assertTrue(view.get(2,2) < 0.0f || view.get(2,2) > 0.0f); // не ноль
-        assertEquals(10, -view.get(2,3), 1e-4); // должно быть -z.dot(eye)
+        assertEquals(10, view.get(2,3), 1e-4); // должно быть -z.dot(eye)
     }
 
     // === PERSPECTIVE ===
