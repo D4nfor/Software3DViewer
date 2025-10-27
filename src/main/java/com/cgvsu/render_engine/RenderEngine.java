@@ -5,8 +5,9 @@ import java.util.ArrayList;
 import com.cgvsu.math.Vector3f;
 import com.cgvsu.math.Point2f;
 import com.cgvsu.math.Matrix4f;
-import javafx.scene.canvas.GraphicsContext;
 import com.cgvsu.model.Model;
+
+import javafx.scene.canvas.GraphicsContext;
 
 import static com.cgvsu.render_engine.GraphicConveyor.*;
 
@@ -24,8 +25,9 @@ public class RenderEngine {
         Matrix4f viewMatrix = camera.getViewMatrix();
         Matrix4f projectionMatrix = camera.getProjectionMatrix();
 
+        // Правильный порядок для векторов-столбцов
         // MVP = projection * view * model
-        Matrix4f modelViewProjectionMatrix = modelMatrix.multiply(viewMatrix).multiply(projectionMatrix);
+        Matrix4f modelViewProjectionMatrix = projectionMatrix.multiply(viewMatrix).multiply(modelMatrix);
 
         final int nPolygons = mesh.polygons.size();
         for (int polygonInd = 0; polygonInd < nPolygons; ++polygonInd) {
