@@ -1,9 +1,9 @@
 package com.cgvsu.math.base;
 
-import com.cgvsu.math.interfaces.Matrix;
+import com.cgvsu.math.interfaces.MatrixImpl;
 
 public abstract class AbstractMatrix<T extends AbstractMatrix<T, V>, V extends AbstractVector<V>>
-        implements Matrix<T, V> {
+        implements MatrixImpl<T, V> {
 
     protected final float[][] data; // для элементов матрицы
     protected final int size;

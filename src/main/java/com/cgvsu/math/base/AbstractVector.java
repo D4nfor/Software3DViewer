@@ -1,8 +1,8 @@
 package com.cgvsu.math.base;
 
-import com.cgvsu.math.interfaces.Vector;
+import com.cgvsu.math.interfaces.VectorImpl;
 
-public abstract class AbstractVector<T extends AbstractVector<T>> implements Vector<T> {
+public abstract class AbstractVector<T extends AbstractVector<T>> implements VectorImpl<T> {
 
     protected final float[] components;
 
@@ -11,6 +11,11 @@ public abstract class AbstractVector<T extends AbstractVector<T>> implements Vec
     }
 
     protected abstract T createNew(float[] components);
+
+    @Override
+    public float getComponent(int index) {
+        return components[index];
+    }
 
     @Override
     public T add(T other) { // сложение

@@ -1,6 +1,6 @@
 package com.cgvsu.math.interfaces;
 
-public interface Vector<T extends Vector<T>> {
+public interface VectorImpl<T extends VectorImpl<T>> {
 
     T add(T other); // сложение
     T subtract(T other); // вычитание
@@ -9,7 +9,7 @@ public interface Vector<T extends Vector<T>> {
     float length(); // длинна
     T normalize(); // нормализация
     float dot(T other); // скалярное произв
-
+    float getComponent(int index); // доступ к компоненте по индексу
     boolean equals(Object obj); // сравнение
     int hashCode(); // для корректной работы
     String toString(); // в строку

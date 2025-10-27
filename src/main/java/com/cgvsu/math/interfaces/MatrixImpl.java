@@ -1,6 +1,6 @@
 package com.cgvsu.math.interfaces;
 
-public interface Matrix<T extends Matrix<T, V>, V extends Vector<V>> {
+public interface MatrixImpl<T extends MatrixImpl<T, V>, V extends VectorImpl<V>> {
 
     T add(T other); // сложение
     T subtract(T other); // разность
