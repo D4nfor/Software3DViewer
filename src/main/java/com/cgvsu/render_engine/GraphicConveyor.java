@@ -22,8 +22,8 @@ public class GraphicConveyor {
         float sin = (float) Math.sin(angle);
         float[][] data = new float[][]{
                 {1, 0, 0, 0},
-                {0, cos, -sin, 0},
-                {0, sin, cos, 0},
+                {0, cos, sin, 0},
+                {0, -sin, cos, 0},
                 {0, 0, 0, 1}
         };
         return new Matrix4f(data);
@@ -47,8 +47,8 @@ public class GraphicConveyor {
         float cos = (float) Math.cos(angle);
         float sin = (float) Math.sin(angle);
         float[][] data = new float[][]{
-                {cos, -sin, 0, 0},
-                {sin, cos, 0, 0},
+                {cos, sin, 0, 0},
+                {-sin, cos, 0, 0},
                 {0, 0, 1, 0},
                 {0, 0, 0, 1}
         };
@@ -77,8 +77,9 @@ public class GraphicConveyor {
         Matrix4f rotateZMatrix = rotateZ(rotateZ);
         Matrix4f translateMatrix = translate(translateX, translateY, translateZ);
 
-        // Порядок: scale -> rotate -> translate
+        // Y * X * Z - более интуитивный порядок
         Matrix4f rotationMatrix = rotateZMatrix.multiply(rotateYMatrix).multiply(rotateXMatrix);
+        // Порядок: scale -> rotate -> translate
         Matrix4f modelMatrix = translateMatrix.multiply(rotationMatrix).multiply(scaleMatrix);
 
         return modelMatrix;
@@ -151,6 +152,6 @@ public class GraphicConveyor {
     }
 
     public static Point2f vertexToPoint(Vector3f vertex, int width, int height) {
-        return new Point2f(vertex.getX() * width + width / 2.0f, -vertex.getY() * height + height / 2.0f);
+        return new Point2f(vertex.getX() * width + width / 2.0f, vertex.getY() * height + height / 2.0f);
     }
 }

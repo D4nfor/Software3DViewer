@@ -49,7 +49,7 @@ public class Camera {
     }
 
     Matrix4f getViewMatrix() {
-        return GraphicConveyor.lookAt(position, target);
+        return GraphicConveyor.lookAt(position, target, new Vector3f(0, 1, 0));
     }
 
     Matrix4f getProjectionMatrix() {
