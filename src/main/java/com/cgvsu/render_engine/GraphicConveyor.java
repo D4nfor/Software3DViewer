@@ -27,7 +27,7 @@ public class GraphicConveyor {
 
         float[][] data = new float[4][4];
 
-        // Для векторов-столбцов
+        // Для векторов-столбцов матрица выглядит так:
         data[0][0] = x.getX(); data[0][1] = x.getY(); data[0][2] = x.getZ(); data[0][3] = -x.dot(eye);
         data[1][0] = y.getX(); data[1][1] = y.getY(); data[1][2] = y.getZ(); data[1][3] = -y.dot(eye);
         data[2][0] = z.getX(); data[2][1] = z.getY(); data[2][2] = z.getZ(); data[2][3] = -z.dot(eye);
@@ -59,6 +59,6 @@ public class GraphicConveyor {
     }
 
     public static Point2f vertexToPoint(Vector3f vertex, int width, int height) {
-        return new Point2f(vertex.getX() * width + width / 2.0f, -vertex.getY() * height + height / 2.0f);
+        return new Point2f(vertex.getX() * width + width / 2.0f, vertex.getY() * height + height / 2.0f);
     }
 }

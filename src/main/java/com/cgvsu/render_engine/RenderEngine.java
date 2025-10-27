@@ -5,9 +5,8 @@ import java.util.ArrayList;
 import com.cgvsu.math.Vector3f;
 import com.cgvsu.math.Point2f;
 import com.cgvsu.math.Matrix4f;
-import com.cgvsu.model.Model;
-
 import javafx.scene.canvas.GraphicsContext;
+import com.cgvsu.model.Model;
 
 import static com.cgvsu.render_engine.GraphicConveyor.*;
 
