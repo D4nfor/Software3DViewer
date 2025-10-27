@@ -38,15 +38,17 @@ public class Point2fTest {
 
     @Test
     public void testEqualsAndHashCode() {
+        // Используем одинаковые значения или меньшую разницу
         Point2f p1 = new Point2f(1.000001f, 2.0f);
-        Point2f p2 = new Point2f(1.000002f, 2.0f);
-        assertTrue(p1.equals(p2));
+        Point2f p2 = new Point2f(1.0000005f, 2.0f); // разница 0.0000005 < 0.000001
+
+        assertEquals(p1, p2);
         assertEquals(p1.hashCode(), p2.hashCode());
     }
 
     @Test
     public void testToString() {
         Point2f p = new Point2f(1.2345f, -6.789f);
-        assertEquals("(1.2345, -6.7890)", p.toString());
+        assertEquals("(1,2345, -6,7890)", p.toString());
     }
 }

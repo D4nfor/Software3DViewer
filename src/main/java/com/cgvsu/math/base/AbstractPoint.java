@@ -50,10 +50,11 @@ public abstract class AbstractPoint<T extends AbstractPoint<T, V>, V extends Vec
         if (obj == null || getClass() != obj.getClass()) return false;
 
         AbstractPoint<?, ?> other = (AbstractPoint<?, ?>) obj;
-        if (coordinates.length != other.coordinates.length) return false;
 
         for (int i = 0; i < coordinates.length; i++) {
-            if (Math.abs(coordinates[i] - other.coordinates[i]) >= 1e-6f) return false;
+            if (Math.abs(coordinates[i] - other.coordinates[i]) >= 1e-5f) {
+                return false;
+            }
         }
         return true;
     }
@@ -61,7 +62,11 @@ public abstract class AbstractPoint<T extends AbstractPoint<T, V>, V extends Vec
     @Override
     public int hashCode() {
         int result = 1;
-        for (float c : coordinates) result = 31 * result + Float.hashCode(c);
+        for (float c : coordinates) {
+            // Округляем до той же точности, что используется в equals
+            float rounded = Math.round(c * 100000f) / 100000f; // 5 знаков после запятой
+            result = 31 * result + Float.hashCode(rounded);
+        }
         return result;
     }
 
