@@ -7,12 +7,14 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 
 public class GuiController {
 
     @FXML
-    AnchorPane anchorPane;
+    private BorderPane borderPane; // главный BorderPane
 
     @FXML
     private Canvas canvas;
@@ -38,15 +40,13 @@ public class GuiController {
             transformPanelIncludeController.hidePanel();
         }
 
-        setupCanvasResizeListener();
+        // setupCanvasResizeListener();
         setupRenderLoop();
     }
 
     private void setupCanvasResizeListener() {
-        anchorPane.prefWidthProperty().addListener((ov, oldValue, newValue) ->
-                canvas.setWidth(newValue.doubleValue()));
-        anchorPane.prefHeightProperty().addListener((ov, oldValue, newValue) ->
-                canvas.setHeight(newValue.doubleValue()));
+        canvas.widthProperty().bind(borderPane.widthProperty());
+        canvas.heightProperty().bind(borderPane.heightProperty());
     }
 
     private void setupRenderLoop() {

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.canvas.Canvas?>
+
+
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.StackPane?>
+<BorderPane fx:id="borderPane"  xmlns:fx="http://javafx.com/fxml" fx:controller="com.cgvsu.controller.GuiController">
+
+    <!-- МЕНЮ -->
+    <top>
+        <fx:include source="MenuBar.fxml" fx:id="menuInclude"/>
+    </top>
+
+    <!-- КАНВАС -->
+    <center>
+        <Canvas fx:id="canvas" width="500" height="500"/>
+    </center>
+
+    <!-- ПАНЕЛЬ ТРАНСФОРМАЦИЙ -->
+    <right>
+        <fx:include source="TransformPanel.fxml" fx:id="transformPanelInclude"/>
+    </right>
+</BorderPane>
+

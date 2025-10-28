@@ -2,154 +2,89 @@ package com.cgvsu.controller;
 
 import com.cgvsu.render_engine.Transform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Slider;
-import javafx.scene.layout.HBox;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
 
 public class TransformController {
-    private Transform transform = new Transform(); // объект для преобразований
+    private Transform transform = new Transform();
 
+    @FXML private VBox transformPanel;
 
-    @FXML private HBox transformPanel;
-    @FXML private Slider translateXSlider, translateYSlider, translateZSlider;
-    @FXML
-    private Slider rotateXSlider, rotateYSlider, rotateZSlider;
-    @FXML private Slider scaleSlider;
-
+    // === Numeric fields ===
+    @FXML private Spinner<Double> translateXField, translateYField, translateZField;
+    @FXML private Spinner<Double> rotateXField, rotateYField, rotateZField;
+    @FXML private Spinner<Double> scaleXField, scaleYField, scaleZField;
     private Runnable onTransformChange;
 
     @FXML
     private void initialize() {
-        setupSliderListeners();
+        setupSpinners();
     }
 
-    private void setupSliderListeners() {
-        // Для трансляции
-        addSliderListener(translateXSlider, this::handleTranslateX);
-        addSliderListener(translateYSlider, this::handleTranslateY);
-        addSliderListener(translateZSlider, this::handleTranslateZ);
+    private void setupSpinners() {
+        // POSITION
+        initSpinner(translateXField, -10.0, 10.0, 0.0, 0.1, this::handleTranslate);
+        initSpinner(translateYField, -10.0, 10.0, 0.0, 0.1, this::handleTranslate);
+        initSpinner(translateZField, -10.0, 10.0, 0.0, 0.1, this::handleTranslate);
 
-        // Для вращения
-        addSliderListener(rotateXSlider, this::handleRotateX);
-        addSliderListener(rotateYSlider, this::handleRotateY);
-        addSliderListener(rotateZSlider, this::handleRotateZ);
+        // ROTATION (degrees)
+        initSpinner(rotateXField, -180.0, 180.0, 0.0, 1.0, this::handleRotate);
+        initSpinner(rotateYField, -180.0, 180.0, 0.0, 1.0, this::handleRotate);
+        initSpinner(rotateZField, -180.0, 180.0, 0.0, 1.0, this::handleRotate);
 
-        // Для масштаба
-        addSliderListener(scaleSlider, this::handleScale);
+        // SCALE
+        initSpinner(scaleXField, 0.1, 5.0, 1.0, 0.1, this::handleScale);
+        initSpinner(scaleYField, 0.1, 5.0, 1.0, 0.1, this::handleScale);
+        initSpinner(scaleZField, 0.1, 5.0, 1.0, 0.1, this::handleScale);
     }
 
-    private void addSliderListener(Slider slider, Runnable handler) {
-        if (slider != null) {
-            slider.valueProperty().addListener((obs, oldVal, newVal) -> handler.run());
+    private void initSpinner(Spinner<Double> spinner, double min, double max, double init, double step, Runnable handler) {
+        if (spinner != null) {
+            spinner.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(min, max, init, step));
+            spinner.valueProperty().addListener((obs, oldVal, newVal) -> handler.run());
         }
     }
 
-    // Изменяем сеттер чтобы обновлять слайдеры при смене transform
-    public void setTransform(Transform transform) {
-        this.transform = transform;
-        updateSlidersFromTransform();
-    }
-
-    public Transform getTransform() {
-        return transform;
-    }
-    
-    public void setOnTransformChange(Runnable callback) {
-        this.onTransformChange = callback;
-    }
-    
-    public void showPanel() {
-        if (transformPanel != null) {
-            transformPanel.setVisible(true);
-            transformPanel.setManaged(true);
-        }
-    }
-    
-    public void hidePanel() {
-        if (transformPanel != null) {
-            transformPanel.setVisible(false);
-            transformPanel.setManaged(false);
-        }
-    }
-    
-    // ОБНОВЛЯЕМ СЛАЙДЕРЫ ПРИ ИЗМЕНЕНИИ TRANSFORM
-    private void updateSlidersFromTransform() {
+    // === Handlers ===
+    private void handleTranslate() {
         if (transform == null) return;
-        
-        if (translateXSlider != null) translateXSlider.setValue(transform.translateX);
-        if (translateYSlider != null) translateYSlider.setValue(transform.translateY);
-        if (translateZSlider != null) translateZSlider.setValue(transform.translateZ);
-        
-        if (rotateXSlider != null) rotateXSlider.setValue(Math.toDegrees(transform.rotateX));
-        if (rotateYSlider != null) rotateYSlider.setValue(Math.toDegrees(transform.rotateY));
-        if (rotateZSlider != null) rotateZSlider.setValue(Math.toDegrees(transform.rotateZ));
-        
-        if (scaleSlider != null) scaleSlider.setValue(transform.scaleX);
+        transform.translateX = parseFloat(translateXField.getEditor());
+        transform.translateY = parseFloat(translateYField.getEditor());
+        transform.translateZ = parseFloat(translateZField.getEditor());
+        notifyChange();
     }
-    
-    // === ОБРАБОТЧИКИ СЛАЙДЕРОВ ===
-    @FXML
-    private void handleTranslateX() {
+
+    private float parseFloat(TextField field) {
+        try {
+            return Float.parseFloat(field.getText().replace(",", "."));
+        } catch (Exception e) {
+            return 0f;
+        }
+    }
+
+    private void handleRotate() {
         if (transform != null) {
-            transform.translateX = getSliderValue(translateXSlider);
+            transform.rotateX = (float) Math.toRadians(getValue(rotateXField));
+            transform.rotateY = (float) Math.toRadians(getValue(rotateYField));
+            transform.rotateZ = (float) Math.toRadians(getValue(rotateZField));
             notifyChange();
         }
     }
-    
-    @FXML
-    private void handleTranslateY() {
-        if (transform != null) {
-            transform.translateY = getSliderValue(translateYSlider);
-            notifyChange();
-        }
-    }
-    
-    @FXML
-    private void handleTranslateZ() {
-        if (transform != null) {
-            transform.translateZ = getSliderValue(translateZSlider);
-            notifyChange();
-        }
-    }
-    
-    @FXML
-    private void handleRotateX() {
-        if (transform != null) {
-            transform.rotateX = (float) Math.toRadians(getSliderValue(rotateXSlider));
-            notifyChange();
-        }
-    }
-    
-    @FXML
-    private void handleRotateY() {
-        if (transform != null) {
-            transform.rotateY = (float) Math.toRadians(getSliderValue(rotateYSlider));
-            notifyChange();
-        }
-    }
-    
-    @FXML
-    private void handleRotateZ() {
-        if (transform != null) {
-            transform.rotateZ = (float) Math.toRadians(getSliderValue(rotateZSlider));
-            notifyChange();
-        }
-    }
-    
-    @FXML
+
     private void handleScale() {
         if (transform != null) {
-            float scale = getSliderValue(scaleSlider);
-            transform.scaleX = scale;
-            transform.scaleY = scale;
-            transform.scaleZ = scale;
+            transform.scaleX = scaleXField.getValue().floatValue();
+            transform.scaleY = scaleYField.getValue().floatValue();
+            transform.scaleZ = scaleZField.getValue().floatValue();
             notifyChange();
         }
     }
-    
+
     @FXML
     private void handleResetTransform() {
         if (transform != null) {
-            // НЕ создаем новый Transform, а обнуляем существующий!
             transform.translateX = 0;
             transform.translateY = 0;
             transform.translateZ = 0;
@@ -159,22 +94,72 @@ public class TransformController {
             transform.scaleX = 1;
             transform.scaleY = 1;
             transform.scaleZ = 1;
-            
-            updateSlidersFromTransform(); // Обновляем слайдеры
+            updateSpinnersFromTransform();
             notifyChange();
         }
     }
-    
+
     @FXML
     private void hideTransformPanel() {
         hidePanel();
     }
-    
-    private float getSliderValue(Slider slider) {
-        return slider != null ? (float) slider.getValue() : 0;
+
+    private double getValue(Spinner<Double> spinner) {
+        return spinner != null ? spinner.getValue() : 0.0;
     }
-    
-    private void notifyChange() {
+
+    private void updateSpinnersFromTransform() {
+        if (transform == null) return;
+
+        setSpinnerValue(translateXField, transform.translateX);
+        setSpinnerValue(translateYField, transform.translateY);
+        setSpinnerValue(translateZField, transform.translateZ);
+
+        setSpinnerValue(rotateXField, Math.toDegrees(transform.rotateX));
+        setSpinnerValue(rotateYField, Math.toDegrees(transform.rotateY));
+        setSpinnerValue(rotateZField, Math.toDegrees(transform.rotateZ));
+
+        setSpinnerValue(scaleXField, transform.scaleX);
+        setSpinnerValue(scaleYField, transform.scaleY);
+        setSpinnerValue(scaleZField, transform.scaleZ);
+    }
+
+    private void setSpinnerValue(Spinner<Double> spinner, double value) {
+        if (spinner != null && spinner.getValueFactory() != null) {
+            spinner.getValueFactory().setValue(value);
+        }
+    }
+
+    // === Visibility ===
+    public void showPanel() {
+        if (transformPanel != null) {
+            transformPanel.setVisible(true);
+            transformPanel.setManaged(true);
+        }
+    }
+
+    public void hidePanel() {
+        if (transformPanel != null) {
+            transformPanel.setVisible(false);
+            transformPanel.setManaged(false);
+        }
+    }
+
+    // === Data access ===
+    public void setTransform(Transform transform) {
+        this.transform = transform;
+        updateSpinnersFromTransform();
+    }
+
+    public Transform getTransform() {
+        return transform;
+    }
+
+    public void setOnTransformChange(Runnable callback) {
+        this.onTransformChange = callback;
+    }
+
+    private void    notifyChange() {
         if (onTransformChange != null) {
             onTransformChange.run();
         }
