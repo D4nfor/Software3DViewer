@@ -82,28 +82,6 @@ public class TransformController {
         }
     }
 
-    @FXML
-    private void handleResetTransform() {
-        if (transform != null) {
-            transform.translateX = 0;
-            transform.translateY = 0;
-            transform.translateZ = 0;
-            transform.rotateX = 0;
-            transform.rotateY = 0;
-            transform.rotateZ = 0;
-            transform.scaleX = 1;
-            transform.scaleY = 1;
-            transform.scaleZ = 1;
-            updateSpinnersFromTransform();
-            notifyChange();
-        }
-    }
-
-    @FXML
-    private void hideTransformPanel() {
-        hidePanel();
-    }
-
     private double getValue(Spinner<Double> spinner) {
         return spinner != null ? spinner.getValue() : 0.0;
     }

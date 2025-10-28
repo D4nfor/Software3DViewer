@@ -20,8 +20,8 @@ public class Software3DViewer extends Application {
 
         // Создаём сцену
         Scene scene = new Scene(viewport);
-        stage.setMinWidth(500);
-        stage.setMinHeight(500);
+        stage.setMinWidth(800);
+        stage.setMinHeight(600);
 
         // Привязываем размеры
 //        viewport.prefWidthProperty().bind(scene.widthProperty());

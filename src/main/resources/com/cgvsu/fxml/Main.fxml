@@ -15,7 +15,7 @@
 
     <!-- КАНВАС -->
     <center>
-        <Canvas fx:id="canvas" width="500" height="500"/>
+        <Canvas fx:id="canvas" width="600" height="600"/>
     </center>
 
     <!-- ПАНЕЛЬ ТРАНСФОРМАЦИЙ -->

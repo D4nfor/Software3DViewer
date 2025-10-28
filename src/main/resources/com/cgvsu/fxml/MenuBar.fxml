@@ -9,7 +9,7 @@
     <Menu mnemonicParsing="false" text="File">
         <MenuItem mnemonicParsing="false" onAction="#onOpenModelMenuItemClick" text="Load Model">
             <accelerator>
-                <KeyCodeCombination alt="UP" control="DOWN" meta="UP" shift="UP" shortcut="UP" code="F"/>
+                <KeyCodeCombination alt="UP" control="DOWN" meta="UP" shift="UP" shortcut="UP" code="O"/>
             </accelerator>
         </MenuItem>
     </Menu>
@@ -46,7 +46,15 @@
         </MenuItem>
     </Menu>
     <Menu mnemonicParsing="false" text="Transform">
-        <MenuItem mnemonicParsing="false" onAction="#showTransformPanel" text="Show Transform Panel"/>
-        <MenuItem mnemonicParsing="false" onAction="#hideTransformPanel" text="Hide Transform Panel"/>
+        <MenuItem mnemonicParsing="false" onAction="#showTransformPanel" text="Show Transform Panel">
+            <accelerator>
+                <KeyCodeCombination alt="UP" control="DOWN" meta="UP" shift="UP" shortcut="UP" code="T"/>
+            </accelerator>
+        </MenuItem>
+        <MenuItem mnemonicParsing="false" onAction="#hideTransformPanel" text="Hide Transform Panel">
+            <accelerator>
+                <KeyCodeCombination alt="UP" control="DOWN" meta="UP" shift="UP" shortcut="UP" code="G"/>
+            </accelerator>
+        </MenuItem>
     </Menu>
 </MenuBar>

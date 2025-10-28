@@ -46,7 +46,6 @@
     </VBox>
 
     <!-- === SCALE === -->
-    <!-- === SCALE === -->
     <VBox spacing="5">
         <Label text="Scale" style="-fx-font-weight: bold;"/>
         <HBox spacing="5">
@@ -62,11 +61,4 @@
             <Spinner fx:id="scaleZField" prefWidth="80" editable="true"/>
         </HBox>
     </VBox>
-
-    <!-- BUTTONS -->
-    <HBox spacing="10" alignment="CENTER">
-        <Button text="Reset" onAction="#handleResetTransform" style="-fx-pref-width: 80;"/>
-        <Button text="Close" onAction="#hideTransformPanel" style="-fx-pref-width: 80;"/>
-    </HBox>
-
 </VBox>
