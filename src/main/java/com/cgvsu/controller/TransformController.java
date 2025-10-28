@@ -23,21 +23,43 @@ public class TransformController {
         setupSpinners();
     }
 
+    @FXML
+    private void handleResetTransform() {
+        if (transform != null) {
+            transform.translateX = 0;
+            transform.translateY = 0;
+            transform.translateZ = 0;
+
+            transform.rotateX = 0;
+            transform.rotateY = 0;
+            transform.rotateZ = 0;
+
+            transform.scaleX = 1;
+            transform.scaleY = 1;
+            transform.scaleZ = 1;
+
+            // Обновление спиннеров
+            updateSpinnersFromTransform();
+            notifyChange();
+        }
+    }
+
+
     private void setupSpinners() {
         // POSITION
-        initSpinner(translateXField, -10.0, 10.0, 0.0, 0.1, this::handleTranslate);
-        initSpinner(translateYField, -10.0, 10.0, 0.0, 0.1, this::handleTranslate);
-        initSpinner(translateZField, -10.0, 10.0, 0.0, 0.1, this::handleTranslate);
+        initSpinner(translateXField, -10.0, 10.0, 0.0, 0.1, this::handleXTranslate);
+        initSpinner(translateYField, -10.0, 10.0, 0.0, 0.1, this::handleYTranslate);
+        initSpinner(translateZField, -10.0, 10.0, 0.0, 0.1, this::handleZTranslate);
 
         // ROTATION (degrees)
-        initSpinner(rotateXField, -180.0, 180.0, 0.0, 1.0, this::handleRotate);
-        initSpinner(rotateYField, -180.0, 180.0, 0.0, 1.0, this::handleRotate);
-        initSpinner(rotateZField, -180.0, 180.0, 0.0, 1.0, this::handleRotate);
+        initSpinner(rotateXField, -180.0, 180.0, 0.0, 1.0, this::handleXRotate);
+        initSpinner(rotateYField, -180.0, 180.0, 0.0, 1.0, this::handleYRotate);
+        initSpinner(rotateZField, -180.0, 180.0, 0.0, 1.0, this::handleZRotate);
 
         // SCALE
-        initSpinner(scaleXField, 0.1, 5.0, 1.0, 0.1, this::handleScale);
-        initSpinner(scaleYField, 0.1, 5.0, 1.0, 0.1, this::handleScale);
-        initSpinner(scaleZField, 0.1, 5.0, 1.0, 0.1, this::handleScale);
+        initSpinner(scaleXField, 0.1, 5.0, 1.0, 0.1, this::handleXScale);
+        initSpinner(scaleYField, 0.1, 5.0, 1.0, 0.1, this::handleYScale);
+        initSpinner(scaleZField, 0.1, 5.0, 1.0, 0.1, this::handleZScale);
     }
 
     private void initSpinner(Spinner<Double> spinner, double min, double max, double init, double step, Runnable handler) {
@@ -48,10 +70,18 @@ public class TransformController {
     }
 
     // === Handlers ===
-    private void handleTranslate() {
+    private void handleXTranslate() {
         if (transform == null) return;
         transform.translateX = parseFloat(translateXField.getEditor());
+        notifyChange();
+    }
+    private void handleYTranslate() {
+        if (transform == null) return;
         transform.translateY = parseFloat(translateYField.getEditor());
+        notifyChange();
+    }
+    private void handleZTranslate() {
+        if (transform == null) return;
         transform.translateZ = parseFloat(translateZField.getEditor());
         notifyChange();
     }
@@ -64,19 +94,39 @@ public class TransformController {
         }
     }
 
-    private void handleRotate() {
+    private void handleXRotate() {
         if (transform != null) {
             transform.rotateX = (float) Math.toRadians(getValue(rotateXField));
+            notifyChange();
+        }
+    }
+    private void handleYRotate() {
+        if (transform != null) {
             transform.rotateY = (float) Math.toRadians(getValue(rotateYField));
+            notifyChange();
+        }
+    }
+    private void handleZRotate() {
+        if (transform != null) {
             transform.rotateZ = (float) Math.toRadians(getValue(rotateZField));
             notifyChange();
         }
     }
 
-    private void handleScale() {
+    private void handleXScale() {
         if (transform != null) {
             transform.scaleX = scaleXField.getValue().floatValue();
+            notifyChange();
+        }
+    }
+    private void handleYScale() {
+        if (transform != null) {
             transform.scaleY = scaleYField.getValue().floatValue();
+            notifyChange();
+        }
+    }
+    private void handleZScale() {
+        if (transform != null) {
             transform.scaleZ = scaleZField.getValue().floatValue();
             notifyChange();
         }
@@ -137,7 +187,7 @@ public class TransformController {
         this.onTransformChange = callback;
     }
 
-    private void    notifyChange() {
+    private void notifyChange() {
         if (onTransformChange != null) {
             onTransformChange.run();
         }

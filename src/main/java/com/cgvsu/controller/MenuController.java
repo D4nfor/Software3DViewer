@@ -4,6 +4,7 @@ import com.cgvsu.math.Vector3f;
 import com.cgvsu.model.Model;
 import com.cgvsu.objreader.ObjReader;
 import com.cgvsu.render_engine.Camera;
+import com.cgvsu.render_engine.Transform;
 import javafx.fxml.FXML;
 import javafx.event.ActionEvent;
 import javafx.stage.FileChooser;
@@ -54,6 +55,7 @@ public class MenuController {
         try {
             String fileContent = Files.readString(fileName);
             mesh = ObjReader.read(fileContent);
+            mainController.setTransform(new Transform());
         } catch (IOException exception) {
             exception.printStackTrace();
         }

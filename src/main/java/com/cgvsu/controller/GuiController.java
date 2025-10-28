@@ -1,6 +1,7 @@
 package com.cgvsu.controller;
 
 import com.cgvsu.render_engine.RenderEngine;
+import com.cgvsu.render_engine.Transform;
 import javafx.fxml.FXML;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -103,5 +104,9 @@ public class GuiController {
         if (transformPanelIncludeController != null) {
             transformPanelIncludeController.hidePanel();
         }
+    }
+
+    public void setTransform(Transform transform) {
+        transformPanelIncludeController.setTransform(transform);
     }
 }

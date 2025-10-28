@@ -61,4 +61,8 @@
             <Spinner fx:id="scaleZField" prefWidth="80" editable="true"/>
         </HBox>
     </VBox>
+    <!-- === BUTTON === -->
+    <VBox spacing="5" alignment="CENTER_LEFT">
+        <Button text="Reset" onAction="#handleResetTransform" style="-fx-pref-width: 80;"/>
+    </VBox>
 </VBox>
