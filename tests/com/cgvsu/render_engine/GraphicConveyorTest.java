@@ -24,12 +24,13 @@ class GraphicConveyorTest {
     // === ROTATE X ===
     @Test
     void testRotateXMatrix() {
-        Matrix4f m = GraphicConveyor.rotateX((float)Math.PI / 2);
+        Matrix4f m = GraphicConveyor.rotateX((float)Math.toRadians(90f));
         assertEquals(1, m.get(0,0), EPS);
         assertEquals(0, m.get(1,1), EPS);
-        assertEquals(1, m.get(1,2), EPS);
-        assertEquals(-1, m.get(2,1), EPS);
+        assertEquals(-1, m.get(1,2), EPS);
+        assertEquals(1, m.get(2,1), EPS);
         assertEquals(0, m.get(2,2), EPS);
+
     }
 
     // === ROTATE Y ===
@@ -48,9 +49,11 @@ class GraphicConveyorTest {
     void testRotateZMatrix() {
         Matrix4f m = GraphicConveyor.rotateZ((float)Math.PI / 2);
         assertEquals(0, m.get(0,0), EPS);
-        assertEquals(1, m.get(0,1), EPS);
-        assertEquals(-1, m.get(1,0), EPS);
+        assertEquals(-1, m.get(0,1), EPS);
+        assertEquals(1, m.get(1,0), EPS);
         assertEquals(0, m.get(1,1), EPS);
+        assertEquals(1, m.get(2,2), EPS);
+        assertEquals(1, m.get(3,3), EPS);
     }
 
     // === TRANSLATE ===
