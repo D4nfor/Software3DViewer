@@ -1,110 +1,245 @@
 package com.cgvsu.controller;
 
-import com.cgvsu.render_engine.RenderEngine;
+import com.cgvsu.manager.FileManager;
+import com.cgvsu.manager.RenderManager;
+import com.cgvsu.manager.AnimationManager;
+import com.cgvsu.manager.UIManager;
+import com.cgvsu.model.Model;
 import com.cgvsu.render_engine.Transform;
 import javafx.fxml.FXML;
-import javafx.animation.Animation;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.Alert;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.layout.BorderPane;
-import javafx.util.Duration;
+
 
 public class GuiController {
+    @FXML private AnchorPane canvasContainer;
+    @FXML private BorderPane borderPane;
+    @FXML private Canvas canvas;
+    @FXML private VBox transformPanel;
 
-    @FXML
-    private BorderPane borderPane; // главный BorderPane
+    @FXML private Spinner<Double> translateXField, translateYField, translateZField;
+    @FXML private Spinner<Double> rotateXField, rotateYField, rotateZField;
+    @FXML private Spinner<Double> scaleXField, scaleYField, scaleZField;
 
-    @FXML
-    private Canvas canvas;
+    private RenderManager renderManager;
+    private AnimationManager animationManager;
+    private UIManager uiManager;
+    private FileManager fileManager;
 
-    @FXML
-    private MenuController menuIncludeController;
+    private static final float TRANSLATION = 0.5f;
 
-    @FXML
-    private TransformController transformPanelIncludeController;
-
-    private Timeline timeline;
 
     @FXML
     private void initialize() {
-        // Настраиваем контроллер меню
-        if (menuIncludeController != null) {
-            menuIncludeController.setMainController(this);
-        }
-
-        // Настраиваем контроллер трансформаций
-        if (transformPanelIncludeController != null) {
-            transformPanelIncludeController.setOnTransformChange(this::renderFrame);
-            transformPanelIncludeController.hidePanel();
-        }
-
-        // setupCanvasResizeListener();
-        setupRenderLoop();
+        initializeManagers();
+        setupUI();
+//        setupCanvasBinding();
+        setupTransformListeners();
+        animationManager.start();
+        hideTransformPanel();
     }
 
-    private void setupCanvasResizeListener() {
+    private void initializeManagers() {
+        this.renderManager = new RenderManager();
+        this.animationManager = new AnimationManager(this::renderFrame);
+        this.uiManager = new UIManager();
+        this.fileManager = new FileManager();
+    }
+
+    private void setupUI() {
+        uiManager.setupTransformSpinners(
+                translateXField, translateYField, translateZField,
+                rotateXField, rotateYField, rotateZField,
+                scaleXField, scaleYField, scaleZField
+        );
+        setupSpinnerListeners();
+    }
+
+    private void setupSpinnerListeners() {
+        // Слушатели для позиции
+        if (translateXField != null) {
+            translateXField.valueProperty().addListener((obs, oldVal, newVal) -> handleTransformChange());
+        }
+        if (translateYField != null) {
+            translateYField.valueProperty().addListener((obs, oldVal, newVal) -> handleTransformChange());
+        }
+        if (translateZField != null) {
+            translateZField.valueProperty().addListener((obs, oldVal, newVal) -> handleTransformChange());
+        }
+
+        // Слушатели для вращения
+        if (rotateXField != null) {
+            rotateXField.valueProperty().addListener((obs, oldVal, newVal) -> handleTransformChange());
+        }
+        if (rotateYField != null) {
+            rotateYField.valueProperty().addListener((obs, oldVal, newVal) -> handleTransformChange());
+        }
+        if (rotateZField != null) {
+            rotateZField.valueProperty().addListener((obs, oldVal, newVal) -> handleTransformChange());
+        }
+
+        // Слушатели для масштаба
+        if (scaleXField != null) {
+            scaleXField.valueProperty().addListener((obs, oldVal, newVal) -> handleTransformChange());
+        }
+        if (scaleYField != null) {
+            scaleYField.valueProperty().addListener((obs, oldVal, newVal) -> handleTransformChange());
+        }
+        if (scaleZField != null) {
+            scaleZField.valueProperty().addListener((obs, oldVal, newVal) -> handleTransformChange());
+        }
+    }
+
+    private void setupTransformListeners() {
+
+        renderManager.transformProperty().addListener((obs, oldTransform, newTransform) -> {
+            if (!uiManager.isUpdatingFromModel()) {
+                uiManager.updateSpinnersFromTransform(
+                        newTransform,
+                        translateXField, translateYField, translateZField,
+                        rotateXField, rotateYField, rotateZField,
+                        scaleXField, scaleYField, scaleZField
+                );
+            }
+        });
+    }
+
+    private void setupCanvasBinding() {
         canvas.widthProperty().bind(borderPane.widthProperty());
         canvas.heightProperty().bind(borderPane.heightProperty());
     }
 
-    private void setupRenderLoop() {
-        timeline = new Timeline();
-        timeline.setCycleCount(Animation.INDEFINITE);
-
-        KeyFrame frame = new KeyFrame(Duration.millis(15), event -> {
-            renderFrame();
-        });
-
-        timeline.getKeyFrames().add(frame);
-        timeline.play();
+    @FXML
+    private void onOpenModelMenuItemClick() {
+        fileManager.openModelFile(
+                canvas.getScene().getWindow(),
+                this::onModelLoaded,
+                this::onModelLoadError
+        );
     }
 
-    private void renderFrame() {
-        double width = canvas.getWidth();
-        double height = canvas.getHeight();
+    private void onModelLoaded(Model model) {
+        renderManager.setModel(model);
+        renderManager.resetTransform();
+        requestRender();
+    }
 
-        canvas.getGraphicsContext2D().clearRect(0, 0, width, height);
+    private void onModelLoadError(String errorMessage) {
+        showErrorDialog(errorMessage);
+    }
 
-        if (menuIncludeController != null) {
-            menuIncludeController.getCamera().setAspectRatio((float) (width / height));
+    @FXML
+    private void handleCameraForward() {
+        renderManager.moveCameraForward(TRANSLATION);
+        requestRender();
+    }
 
-            if (menuIncludeController.getMesh() != null) {
-                RenderEngine.render(
-                        canvas.getGraphicsContext2D(),
-                        menuIncludeController.getCamera(),
-                        menuIncludeController.getMesh(),
-                        (int) width,
-                        (int) height,
-                        transformPanelIncludeController.getTransform()
-                );
-            }
+    @FXML
+    private void handleCameraBackward() {
+        renderManager.moveCameraBackward(TRANSLATION);
+        requestRender();
+    }
+
+    @FXML
+    private void handleCameraLeft() {
+        renderManager.moveCameraLeft(TRANSLATION);
+        requestRender();
+    }
+
+    @FXML
+    private void handleCameraRight() {
+        renderManager.moveCameraRight(TRANSLATION);
+        requestRender();
+    }
+
+    @FXML
+    private void handleCameraUp() {
+        renderManager.moveCameraUp(TRANSLATION);
+        requestRender();
+    }
+
+    @FXML
+    private void handleCameraDown() {
+        renderManager.moveCameraDown(TRANSLATION);
+        requestRender();
+    }
+
+    @FXML
+    private void handleCameraReset() {
+        renderManager.resetCamera();
+        requestRender();
+    }
+
+    @FXML
+    private void showTransformPanel() {
+        if (transformPanel != null) {
+            transformPanel.setVisible(true);
+            transformPanel.setManaged(true);
+            uiManager.updateSpinnersFromTransform(
+                    renderManager.getTransform(),
+                    translateXField, translateYField, translateZField,
+                    rotateXField, rotateYField, rotateZField,
+                    scaleXField, scaleYField, scaleZField
+            );
         }
     }
 
-    // Публичные методы для MenuController
+    @FXML
+    private void hideTransformPanel() {
+        if (transformPanel != null) {
+            transformPanel.setVisible(false);
+            transformPanel.setManaged(false);
+        }
+    }
+
+    @FXML
+    private void handleResetTransform() {
+        renderManager.resetTransform();
+        uiManager.updateSpinnersFromTransform(
+                renderManager.getTransform(),
+                translateXField, translateYField, translateZField,
+                rotateXField, rotateYField, rotateZField,
+                scaleXField, scaleYField, scaleZField
+        );
+    }
+
+    @FXML
+    private void handleTransformChange() {
+        if (uiManager.isUpdatingFromModel()) return;
+
+        Transform transform = uiManager.createTransformFromSpinners(
+                translateXField, translateYField, translateZField,
+                rotateXField, rotateYField, rotateZField,
+                scaleXField, scaleYField, scaleZField
+        );
+
+        renderManager.setTransform(transform);
+    }
+
     public void requestRender() {
         renderFrame();
     }
 
-    public Canvas getCanvas() {
-        return canvas;
+    private void renderFrame() {
+        canvas.getGraphicsContext2D().clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        renderManager.render(canvas.getGraphicsContext2D(), canvas.getWidth(), canvas.getHeight());
     }
 
-    // Методы для управления панелью трансформаций
-    public void showTransformPanel() {
-        if (transformPanelIncludeController != null) {
-            transformPanelIncludeController.showPanel();
+    private void showErrorDialog(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    public void cleanup() {
+        if (animationManager != null) {
+            animationManager.stop();
         }
-    }
-
-    public void hideTransformPanel() {
-        if (transformPanelIncludeController != null) {
-            transformPanelIncludeController.hidePanel();
-        }
-    }
-
-    public void setTransform(Transform transform) {
-        transformPanelIncludeController.setTransform(transform);
     }
 }
