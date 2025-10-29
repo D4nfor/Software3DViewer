@@ -5,11 +5,15 @@ import com.cgvsu.model.Model;
 import com.cgvsu.render_engine.Transform;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.Alert;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.BorderPane;
+
+import java.util.Optional;
 
 public class GuiController {
     @FXML private AnchorPane canvasContainer;
@@ -55,7 +59,7 @@ public class GuiController {
             inputManager.setupKeyboardHandlers(canvas, this::requestRender);
             inputManager.setHotkeyHandlers(
                     this::onOpenModelMenuItemClick,
-                    this::onOpenModelMenuItemClick, // затычка
+                    this::onSaveModelMenuItemClick,
                     this::showTransformPanel,
                     this::hideTransformPanel
             );
@@ -140,6 +144,53 @@ public class GuiController {
         }
     }
 
+    @FXML
+    private void onSaveModelMenuItemClick() {
+        if (fileManager != null && renderManager != null) {
+            Model currentModel = renderManager.getModel();
+            if (currentModel == null) {
+                showAlert("No model loaded", "Please open a model first.");
+                return;
+            }
+
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Save Model");
+            alert.setHeaderText("Choose which version to save");
+            alert.setContentText("Do you want to save the original model or the transformed one?");
+
+            ButtonType btnOriginal = new ButtonType("Original");
+            ButtonType btnTransformed = new ButtonType("Transformed");
+            ButtonType btnCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+            alert.getButtonTypes().setAll(btnOriginal, btnTransformed, btnCancel);
+
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.isEmpty() || result.get() == btnCancel) {
+                return;
+            }
+
+            Model toSave = (result.get() == btnTransformed)
+                    ? renderManager.getTransformedModel()
+                    : renderManager.getModel();
+
+            fileManager.saveModelFile(
+                    canvas.getScene().getWindow(),
+                    toSave,
+                    msg -> showAlert("Success", msg),
+                    err -> showAlert("Error", err)
+            );
+        }
+    }
+
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+
     private void onModelLoaded(Model model) {
         if (renderManager != null) {
             renderManager.setModel(model);
@@ -151,6 +202,7 @@ public class GuiController {
     private void onModelLoadError(String errorMessage) {
         showErrorDialog(errorMessage);
     }
+
     @FXML
     private void showTransformPanel() {
         if (transformPanel != null && uiManager != null && renderManager != null) {

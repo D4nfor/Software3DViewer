@@ -1,0 +1,11 @@
+package com.cgvsu.objtools;
+
+public class ObjWriterException extends RuntimeException {
+    public ObjWriterException(String message) {
+        super(message);
+    }
+
+    public ObjWriterException(String message, Throwable cause) {
+        super(message, cause);
+    }
+}

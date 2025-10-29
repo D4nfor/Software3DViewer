@@ -25,7 +25,7 @@
                         <KeyCodeCombination alt="UP" control="DOWN" meta="UP" shift="UP" shortcut="UP" code="O"/>
                     </accelerator>
                 </MenuItem>
-                <MenuItem mnemonicParsing="false" onAction="#onOpenModelMenuItemClick" text="Save Model">
+                <MenuItem mnemonicParsing="false" onAction="#onSaveModelMenuItemClick" text="Save Model">
                     <accelerator>
                         <KeyCodeCombination alt="UP" control="DOWN" meta="UP" shift="UP" shortcut="UP" code="S"/>
                     </accelerator>
@@ -49,7 +49,7 @@
     <!-- КАНВАС -->
     <center>
         <AnchorPane fx:id="canvasContainer">
-            <Canvas fx:id="canvas" width="600" height="600"/>
+            <Canvas fx:id="canvas" width="1000" height="900"/>
         </AnchorPane>
     </center>
 

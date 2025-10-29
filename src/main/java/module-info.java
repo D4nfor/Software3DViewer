@@ -9,7 +9,7 @@ module com.cgvsu {
     exports com.cgvsu.render_engine;
     exports com.cgvsu.math;
     exports com.cgvsu.model;
-    exports com.cgvsu.objreader;
+    exports com.cgvsu.objtools;
 
     // Открываем пакеты для рефлексии (FXML загрузка)
     opens com.cgvsu to javafx.fxml;
@@ -17,5 +17,5 @@ module com.cgvsu {
     opens com.cgvsu.model to javafx.fxml;
     opens com.cgvsu.math to javafx.fxml;
     opens com.cgvsu.render_engine to javafx.fxml;
-    opens com.cgvsu.objreader to javafx.fxml;
+    opens com.cgvsu.objtools to javafx.fxml;
 }

@@ -16,7 +16,7 @@ public class InputManager {
     private double lastMouseX, lastMouseY;
 
     // Настройки чувствительности
-    private float mouseSensitivity = 0.3f;
+    private float mouseSensitivity = 0.2f;
     private float moveSpeed = 0.5f;
 
     // Делегаты горячих клавиш
