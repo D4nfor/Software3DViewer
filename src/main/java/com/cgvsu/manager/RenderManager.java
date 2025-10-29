@@ -64,7 +64,6 @@ public class RenderManager {
         camera.setTarget(new Vector3f(0, 0, 0));
     }
 
-    // Getters and setters
     public Camera getCamera() { return camera; }
 
     public Model getModel() { return model.get(); }
