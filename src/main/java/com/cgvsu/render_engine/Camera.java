@@ -28,7 +28,6 @@ public class Camera {
         this.up = new Vector3f(0, 1, 0);
     }
 
-    // Основные методы движения камеры
     public void moveForward(float distance) {
         Vector3f direction = getForwardDirection();
         position = position.add(direction.multiply(distance));
@@ -63,41 +62,34 @@ public class Camera {
         target = target.subtract(up.multiply(distance));
     }
 
-    // Вращение камеры вокруг своей позиции
     public void rotateHorizontal(float angleDegrees) {
-        Vector3f direction = target.subtract(position);
-        Vector3f right = getRightDirection();
-
-        // Вращаем вектор направления вокруг оси Y
+        Vector3f dir = target.subtract(position);
         Matrix4f rotation = GraphicConveyor.rotateY((float)Math.toRadians(angleDegrees));
-        Vector3f newDirection = GraphicConveyor.multiplyMatrix4ByVector3(rotation, direction);
-
-        target = position.add(newDirection);
+        Vector3f newDir = GraphicConveyor.multiplyMatrix4ByVector3(rotation, dir);
+        target = position.add(newDir);
     }
 
     public void rotateVertical(float angleDegrees) {
-        Vector3f direction = target.subtract(position);
+        Vector3f dir = target.subtract(position);
         Vector3f right = getRightDirection();
+        Matrix4f rotation = createRotationAroundAxis(right, (float)Math.toRadians(angleDegrees));
+        Vector3f newDir = GraphicConveyor.multiplyMatrix4ByVector3(rotation, dir);
+        target = position.add(newDir);
+    }
 
-        // Вращаем вектор направления вокруг правой оси
-        Matrix4f rotation = createRotationMatrix(right, (float)Math.toRadians(angleDegrees));
-        Vector3f newDirection = GraphicConveyor.multiplyMatrix4ByVector3(rotation, direction);
+    public void zoom(float distance) {
+        Vector3f direction = getFullForwardDirection();
+        float length = target.subtract(position).length();
+        float minDistance = 0.1f;
 
-        // Ограничиваем угол, чтобы не переворачивать камеру
-        float dot = newDirection.dot(up);
-        if (Math.abs(dot) < 0.9f) { // Ограничение ~25 градусов от вертикали
-            target = position.add(newDirection);
+        if (length - distance > minDistance) {
+            position = position.add(direction.multiply(distance));
+        } else {
+            position = target.subtract(direction.multiply(minDistance));
         }
     }
 
-    // Зум (движение вперед/назад без изменения target)
-    public void zoom(float distance) {
-        Vector3f direction = getForwardDirection();
-        position = position.add(direction.multiply(distance));
-        // target остается тем же - камера приближается/отдаляется от точки наблюдения
-    }
 
-    // Орбитальное вращение вокруг target
     public void orbitHorizontal(float angleDegrees) {
         Vector3f toCamera = position.subtract(target);
         Matrix4f rotation = GraphicConveyor.rotateY((float)Math.toRadians(angleDegrees));
@@ -108,29 +100,15 @@ public class Camera {
     public void orbitVertical(float angleDegrees) {
         Vector3f toCamera = position.subtract(target);
         Vector3f right = getRightDirection();
-
-        Matrix4f rotation = createRotationMatrix(right, (float)Math.toRadians(angleDegrees));
+        Matrix4f rotation = createRotationAroundAxis(right, (float)Math.toRadians(angleDegrees));
         Vector3f newToCamera = GraphicConveyor.multiplyMatrix4ByVector3(rotation, toCamera);
-
-        // Ограничиваем угол
-        float dot = newToCamera.dot(up);
-        if (dot > 0.1f) { // Не даем камере уйти ниже target
+        float dot = newToCamera.normalize().dot(new Vector3f(0, 1, 0));
+        if (dot < 0.95f && dot > -0.95f) {
             position = target.add(newToCamera);
         }
     }
 
-    // Вспомогательные методы для получения направлений
-    private Vector3f getForwardDirection() {
-        Vector3f direction = target.subtract(position);
-        return new Vector3f(direction.getX(), 0, direction.getZ()).normalize();
-    }
-
-    private Vector3f getRightDirection() {
-        Vector3f forward = getForwardDirection();
-        return forward.cross(up).normalize();
-    }
-
-    private Matrix4f createRotationMatrix(Vector3f axis, float angle) {
+    private Matrix4f createRotationAroundAxis(Vector3f axis, float angle) {
         float x = axis.getX(), y = axis.getY(), z = axis.getZ();
         float cos = (float)Math.cos(angle);
         float sin = (float)Math.sin(angle);
@@ -146,13 +124,30 @@ public class Camera {
         return new Matrix4f(data);
     }
 
-    // Сброс камеры в начальное положение
+    private Vector3f getForwardDirection() {
+        Vector3f direction = target.subtract(position);
+        return new Vector3f(direction.getX(), 0, direction.getZ()).normalize();
+    }
+
+    private Vector3f getFullForwardDirection() {
+        Vector3f direction = target.subtract(position);
+        if (direction.length() < 1e-6f) {
+            return new Vector3f(0, 0, -1);
+        }
+        return direction.normalize();
+    }
+
+    private Vector3f getRightDirection() {
+        Vector3f forward = getForwardDirection();
+        return forward.cross(up).normalize();
+    }
+
+
     public void reset(Vector3f newPosition, Vector3f newTarget) {
         this.position = newPosition;
         this.target = newTarget;
     }
 
-    // Старые геттеры/сеттеры для совместимости
     public void setPosition(final Vector3f position) {
         this.position = position;
     }

@@ -1,9 +1,6 @@
 package com.cgvsu.controller;
 
-import com.cgvsu.manager.FileManager;
-import com.cgvsu.manager.RenderManager;
-import com.cgvsu.manager.AnimationManager;
-import com.cgvsu.manager.UIManager;
+import com.cgvsu.manager.*;
 import com.cgvsu.model.Model;
 import com.cgvsu.render_engine.Transform;
 import javafx.fxml.FXML;
@@ -13,7 +10,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.BorderPane;
-
 
 public class GuiController {
     @FXML private AnchorPane canvasContainer;
@@ -29,17 +25,19 @@ public class GuiController {
     private AnimationManager animationManager;
     private UIManager uiManager;
     private FileManager fileManager;
-
-    private static final float TRANSLATION = 0.5f;
-
+    private InputManager inputManager;
 
     @FXML
     private void initialize() {
         initializeManagers();
         setupUI();
-//        setupCanvasBinding();
+//        setupCanvasBinding();  надо фиксить поскольку canvas закрывает panel
+        setupInputHandlers();
         setupTransformListeners();
-        animationManager.start();
+
+        if (animationManager != null) {
+            animationManager.start();
+        }
         hideTransformPanel();
     }
 
@@ -48,15 +46,31 @@ public class GuiController {
         this.animationManager = new AnimationManager(this::renderFrame);
         this.uiManager = new UIManager();
         this.fileManager = new FileManager();
+        this.inputManager = new InputManager(renderManager.getCamera());
+    }
+
+    private void setupInputHandlers() {
+        if (inputManager != null && canvas != null) {
+            inputManager.setupMouseHandlers(canvas);
+            inputManager.setupKeyboardHandlers(canvas, this::requestRender);
+            inputManager.setHotkeyHandlers(
+                    this::onOpenModelMenuItemClick,
+                    this::onOpenModelMenuItemClick, // затычка
+                    this::showTransformPanel,
+                    this::hideTransformPanel
+            );
+        }
     }
 
     private void setupUI() {
-        uiManager.setupTransformSpinners(
-                translateXField, translateYField, translateZField,
-                rotateXField, rotateYField, rotateZField,
-                scaleXField, scaleYField, scaleZField
-        );
-        setupSpinnerListeners();
+        if (uiManager != null) {
+            uiManager.setupTransformSpinners(
+                    translateXField, translateYField, translateZField,
+                    rotateXField, rotateYField, rotateZField,
+                    scaleXField, scaleYField, scaleZField
+            );
+            setupSpinnerListeners();
+        }
     }
 
     private void setupSpinnerListeners() {
@@ -95,88 +109,51 @@ public class GuiController {
     }
 
     private void setupTransformListeners() {
-
-        renderManager.transformProperty().addListener((obs, oldTransform, newTransform) -> {
-            if (!uiManager.isUpdatingFromModel()) {
-                uiManager.updateSpinnersFromTransform(
-                        newTransform,
-                        translateXField, translateYField, translateZField,
-                        rotateXField, rotateYField, rotateZField,
-                        scaleXField, scaleYField, scaleZField
-                );
-            }
-        });
+        if (renderManager != null && uiManager != null) {
+            renderManager.transformProperty().addListener((obs, oldTransform, newTransform) -> {
+                if (!uiManager.isUpdatingFromModel()) {
+                    uiManager.updateSpinnersFromTransform(
+                            newTransform,
+                            translateXField, translateYField, translateZField,
+                            rotateXField, rotateYField, rotateZField,
+                            scaleXField, scaleYField, scaleZField
+                    );
+                }
+            });
+        }
     }
 
     private void setupCanvasBinding() {
-        canvas.widthProperty().bind(borderPane.widthProperty());
-        canvas.heightProperty().bind(borderPane.heightProperty());
+        if (borderPane != null && canvas != null) {
+            canvas.widthProperty().bind(borderPane.widthProperty());
+            canvas.heightProperty().bind(borderPane.heightProperty());
+        }
     }
-
     @FXML
     private void onOpenModelMenuItemClick() {
-        fileManager.openModelFile(
-                canvas.getScene().getWindow(),
-                this::onModelLoaded,
-                this::onModelLoadError
-        );
+        if (fileManager != null && canvas != null && canvas.getScene() != null) {
+            fileManager.openModelFile(
+                    canvas.getScene().getWindow(),
+                    this::onModelLoaded,
+                    this::onModelLoadError
+            );
+        }
     }
 
     private void onModelLoaded(Model model) {
-        renderManager.setModel(model);
-        renderManager.resetTransform();
-        requestRender();
+        if (renderManager != null) {
+            renderManager.setModel(model);
+            renderManager.resetTransform();
+            requestRender();
+        }
     }
 
     private void onModelLoadError(String errorMessage) {
         showErrorDialog(errorMessage);
     }
-
-    @FXML
-    private void handleCameraForward() {
-        renderManager.moveCameraForward(TRANSLATION);
-        requestRender();
-    }
-
-    @FXML
-    private void handleCameraBackward() {
-        renderManager.moveCameraBackward(TRANSLATION);
-        requestRender();
-    }
-
-    @FXML
-    private void handleCameraLeft() {
-        renderManager.moveCameraLeft(TRANSLATION);
-        requestRender();
-    }
-
-    @FXML
-    private void handleCameraRight() {
-        renderManager.moveCameraRight(TRANSLATION);
-        requestRender();
-    }
-
-    @FXML
-    private void handleCameraUp() {
-        renderManager.moveCameraUp(TRANSLATION);
-        requestRender();
-    }
-
-    @FXML
-    private void handleCameraDown() {
-        renderManager.moveCameraDown(TRANSLATION);
-        requestRender();
-    }
-
-    @FXML
-    private void handleCameraReset() {
-        renderManager.resetCamera();
-        requestRender();
-    }
-
     @FXML
     private void showTransformPanel() {
-        if (transformPanel != null) {
+        if (transformPanel != null && uiManager != null && renderManager != null) {
             transformPanel.setVisible(true);
             transformPanel.setManaged(true);
             uiManager.updateSpinnersFromTransform(
@@ -187,7 +164,6 @@ public class GuiController {
             );
         }
     }
-
     @FXML
     private void hideTransformPanel() {
         if (transformPanel != null) {
@@ -198,18 +174,19 @@ public class GuiController {
 
     @FXML
     private void handleResetTransform() {
-        renderManager.resetTransform();
-        uiManager.updateSpinnersFromTransform(
-                renderManager.getTransform(),
-                translateXField, translateYField, translateZField,
-                rotateXField, rotateYField, rotateZField,
-                scaleXField, scaleYField, scaleZField
-        );
+        if (renderManager != null && uiManager != null) {
+            renderManager.resetTransform();
+            uiManager.updateSpinnersFromTransform(
+                    renderManager.getTransform(),
+                    translateXField, translateYField, translateZField,
+                    rotateXField, rotateYField, rotateZField,
+                    scaleXField, scaleYField, scaleZField
+            );
+        }
     }
 
-    @FXML
     private void handleTransformChange() {
-        if (uiManager.isUpdatingFromModel()) return;
+        if (uiManager == null || uiManager.isUpdatingFromModel()) return;
 
         Transform transform = uiManager.createTransformFromSpinners(
                 translateXField, translateYField, translateZField,
@@ -217,7 +194,9 @@ public class GuiController {
                 scaleXField, scaleYField, scaleZField
         );
 
-        renderManager.setTransform(transform);
+        if (renderManager != null) {
+            renderManager.setTransform(transform);
+        }
     }
 
     public void requestRender() {
@@ -225,8 +204,10 @@ public class GuiController {
     }
 
     private void renderFrame() {
-        canvas.getGraphicsContext2D().clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-        renderManager.render(canvas.getGraphicsContext2D(), canvas.getWidth(), canvas.getHeight());
+        if (canvas != null && renderManager != null) {
+            canvas.getGraphicsContext2D().clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+            renderManager.render(canvas.getGraphicsContext2D(), canvas.getWidth(), canvas.getHeight());
+        }
     }
 
     private void showErrorDialog(String message) {

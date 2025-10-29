@@ -5,6 +5,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.util.Duration;
 
+// все анимации
 public class AnimationManager {
     private final Timeline timeline;
     

@@ -34,36 +34,6 @@ public class RenderManager {
         }
     }
 
-    // Camera methods
-    public void moveCameraForward(float distance) {
-        camera.moveForward(distance);
-    }
-
-    public void moveCameraBackward(float distance) {
-        camera.moveBackward(distance);
-    }
-
-    public void moveCameraLeft(float distance) {
-        camera.moveLeft(distance);
-    }
-
-    public void moveCameraRight(float distance) {
-        camera.moveRight(distance);
-    }
-
-    public void moveCameraUp(float distance) {
-        camera.moveUp(distance);
-    }
-
-    public void moveCameraDown(float distance) {
-        camera.moveDown(distance);
-    }
-
-    public void resetCamera() {
-        camera.setPosition(new Vector3f(0, 0, 50));
-        camera.setTarget(new Vector3f(0, 0, 0));
-    }
-
     public Camera getCamera() { return camera; }
 
     public Model getModel() { return model.get(); }
