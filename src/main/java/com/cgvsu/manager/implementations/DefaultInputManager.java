@@ -1,7 +1,7 @@
 package com.cgvsu.manager.implementations;
 
 import com.cgvsu.manager.interfaces.InputManagerImpl;
-import com.cgvsu.math.Vector3f;
+import com.cgvsu.utils.math.Vector3f;
 import com.cgvsu.render_engine.Camera;
 import javafx.scene.Node;
 import javafx.scene.input.KeyEvent;

@@ -27,7 +27,7 @@ public class TransformController {
     private void initialize() {
         setupUI();
         setupListeners();
-        hidePanel(); // По умолчанию скрыта
+        hidePanel();
     }
 
     private void setupUI() {
@@ -49,7 +49,6 @@ public class TransformController {
         setupSpinnerListener(scaleYField);
         setupSpinnerListener(scaleZField);
 
-        // Слушатель изменений трансформации из SceneManager
         sceneManager.transformProperty().addListener((obs, oldTransform, newTransform) -> {
             if (!uiManager.isUpdatingFromModel()) {
                 updateSpinnersFromTransform(newTransform);

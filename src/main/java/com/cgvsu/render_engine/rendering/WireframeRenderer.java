@@ -1,13 +1,13 @@
 package com.cgvsu.render_engine.rendering;
 
-import com.cgvsu.math.Vector3f;
-import com.cgvsu.math.Point2f;
-import com.cgvsu.math.Matrix4f;
-import com.cgvsu.model.Model;
-import com.cgvsu.model.Polygon;
 import com.cgvsu.render_engine.Camera;
 import com.cgvsu.render_engine.GraphicConveyor;
 import com.cgvsu.render_engine.Transform;
+import com.cgvsu.utils.math.Vector3f;
+import com.cgvsu.utils.math.Point2f;
+import com.cgvsu.utils.math.Matrix4f;
+import com.cgvsu.model.Model;
+import com.cgvsu.model.Polygon;
 import javafx.scene.canvas.GraphicsContext;
 
 import java.util.ArrayList;

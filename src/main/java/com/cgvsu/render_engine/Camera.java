@@ -1,7 +1,7 @@
 package com.cgvsu.render_engine;
 
-import com.cgvsu.math.Matrix4f;
-import com.cgvsu.math.Vector3f;
+import com.cgvsu.utils.math.Matrix4f;
+import com.cgvsu.utils.math.Vector3f;
 
 public class Camera {
     private Vector3f position;

@@ -21,14 +21,15 @@ public class MainController {
     private final UIManager uiManager;
     private final FileManagerImpl modelManager;
     private final InputManagerImpl inputManager;
-    
-    // Дочерние контроллеры
+
     private ViewportController viewportController;
     private TransformController transformController;
     private MenuController menuController;
 
+    private RendererImpl renderer;
+
     public MainController() {
-        RendererImpl renderer = new WireframeRenderer();
+        this.renderer = new WireframeRenderer();
         this.sceneManager = new SceneManager(renderer);
         this.animationManager = new AnimationManager(this::renderFrame);
         this.uiManager = new UIManager();
@@ -47,24 +48,20 @@ public class MainController {
     }
 
     private void setupChildControllers() throws IOException {
-        // Фабрика для передачи зависимостей дочерним контроллерам
         ControllerFactory factory = new ControllerFactory(
             sceneManager, animationManager, uiManager, modelManager, inputManager, this
         );
 
-        // Загружаем Viewport
         FXMLLoader viewportLoader = new FXMLLoader(getClass().getResource("/com/cgvsu/fxml/ViewportPane.fxml"));
         viewportLoader.setControllerFactory(factory);
         borderPane.setCenter(viewportLoader.load());
         this.viewportController = viewportLoader.getController();
 
-        // Загружаем Transform Panel
         FXMLLoader transformLoader = new FXMLLoader(getClass().getResource("/com/cgvsu/fxml/TransformPanel.fxml"));
         transformLoader.setControllerFactory(factory);
         borderPane.setRight(transformLoader.load());
         this.transformController = transformLoader.getController();
 
-        // Загружаем Menu Bar
         FXMLLoader menuLoader = new FXMLLoader(getClass().getResource("/com/cgvsu/fxml/MenuBar.fxml"));
         menuLoader.setControllerFactory(factory);
         borderPane.setTop(menuLoader.load());

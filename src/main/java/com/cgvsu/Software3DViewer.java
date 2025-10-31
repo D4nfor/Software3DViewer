@@ -16,15 +16,15 @@ public class Software3DViewer extends Application {
         BorderPane viewport = loader.load();
         Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
         Scene scene = new Scene(viewport);
+
         stage.setMinWidth(800);
         stage.setMinHeight(600);
         stage.setWidth(screenBounds.getWidth());
         stage.setHeight(screenBounds.getHeight());
-        // Привязываем размеры
+
         viewport.prefWidthProperty().bind(scene.widthProperty());
         viewport.prefHeightProperty().bind(scene.heightProperty());
 
-        // Настройки окна
         stage.setTitle("Software3DViewer");
         stage.setScene(scene);
         stage.show();

@@ -2,8 +2,8 @@ package com.cgvsu.manager.implementations;
 
 import com.cgvsu.manager.interfaces.FileManagerImpl;
 import com.cgvsu.model.Model;
-import com.cgvsu.objtools.ObjReader;
-import com.cgvsu.objtools.ObjWriter;
+import com.cgvsu.utils.objtools.ObjReader;
+import com.cgvsu.utils.objtools.ObjWriter;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 
