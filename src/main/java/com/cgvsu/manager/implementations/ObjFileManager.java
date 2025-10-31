@@ -1,6 +1,6 @@
 package com.cgvsu.manager.implementations;
 
-import com.cgvsu.manager.interfaces.ModelManagerImpl;
+import com.cgvsu.manager.interfaces.FileManagerImpl;
 import com.cgvsu.model.Model;
 import com.cgvsu.objtools.ObjReader;
 import com.cgvsu.objtools.ObjWriter;
@@ -11,7 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
-public class ObjModelManager implements ModelManagerImpl {
+public class ObjFileManager implements FileManagerImpl {
 
     @Override
     public void openModelFile(Window window, ModelLoadCallback onSuccess, ModelErrorCallback onError) {

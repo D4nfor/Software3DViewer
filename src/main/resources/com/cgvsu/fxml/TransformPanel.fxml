@@ -18,15 +18,15 @@
             <Label text="Position" style="-fx-font-weight: bold;"/>
             <HBox spacing="5">
                 <Label text="X:"/>
-                <Spinner fx:id="translateXField" prefWidth="80"/>
+                <Spinner fx:id="translateXField" prefWidth="80" editable="true"/>
             </HBox>
             <HBox spacing="5">
                 <Label text="Y:"/>
-                <Spinner fx:id="translateYField" prefWidth="80"/>
+                <Spinner fx:id="translateYField" prefWidth="80" editable="true"/>
             </HBox>
             <HBox spacing="5">
                 <Label text="Z:"/>
-                <Spinner fx:id="translateZField" prefWidth="80"/>
+                <Spinner fx:id="translateZField" prefWidth="80" editable="true"/>
             </HBox>
         </VBox>
 
@@ -35,15 +35,15 @@
             <Label text="Rotation (°)" style="-fx-font-weight: bold;"/>
             <HBox spacing="5">
                 <Label text="X:"/>
-                <Spinner fx:id="rotateXField" prefWidth="80"/>
+                <Spinner fx:id="rotateXField" prefWidth="80" editable="true"/>
             </HBox>
             <HBox spacing="5">
                 <Label text="Y:"/>
-                <Spinner fx:id="rotateYField" prefWidth="80"/>
+                <Spinner fx:id="rotateYField" prefWidth="80" editable="true"/>
             </HBox>
             <HBox spacing="5">
                 <Label text="Z:"/>
-                <Spinner fx:id="rotateZField" prefWidth="80"/>
+                <Spinner fx:id="rotateZField" prefWidth="80" editable="true"/>
             </HBox>
         </VBox>
 
@@ -52,15 +52,15 @@
             <Label text="Scale" style="-fx-font-weight: bold;"/>
             <HBox spacing="5">
                 <Label text="X:"/>
-                <Spinner fx:id="scaleXField" prefWidth="80"/>
+                <Spinner fx:id="scaleXField" prefWidth="80" editable="true"/>
             </HBox>
             <HBox spacing="5">
                 <Label text="Y:"/>
-                <Spinner fx:id="scaleYField" prefWidth="80"/>
+                <Spinner fx:id="scaleYField" prefWidth="80" editable="true"/>
             </HBox>
             <HBox spacing="5">
                 <Label text="Z:"/>
-                <Spinner fx:id="scaleZField" prefWidth="80"/>
+                <Spinner fx:id="scaleZField" prefWidth="80" editable="true"/>
             </HBox>
         </VBox>
 

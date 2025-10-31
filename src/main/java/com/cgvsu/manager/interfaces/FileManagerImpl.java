@@ -3,7 +3,7 @@ package com.cgvsu.manager.interfaces;
 import com.cgvsu.model.Model;
 import javafx.stage.Window;
 
-public interface ModelManagerImpl {
+public interface FileManagerImpl {
     void openModelFile(Window window, ModelLoadCallback onSuccess, ModelErrorCallback onError);
     void saveModelFile(Window window, Model model, ModelSaveCallback onSuccess, ModelErrorCallback onError);
     

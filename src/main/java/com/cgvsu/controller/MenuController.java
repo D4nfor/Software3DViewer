@@ -1,7 +1,7 @@
 package com.cgvsu.controller;
 
 import com.cgvsu.manager.SceneManager;
-import com.cgvsu.manager.interfaces.ModelManagerImpl;
+import com.cgvsu.manager.interfaces.FileManagerImpl;
 import com.cgvsu.model.Model;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -14,18 +14,17 @@ import java.util.Optional;
 public class MenuController {
     @FXML private MenuBar menuBar;
 
-    private final ModelManagerImpl modelManager;
+    private final FileManagerImpl modelManager;
     private final SceneManager sceneManager;
     private final MainController mainController;
     private TransformController transformController;
 
-    public MenuController(ModelManagerImpl modelManager, SceneManager sceneManager, MainController mainController) {
+    public MenuController(FileManagerImpl modelManager, SceneManager sceneManager, MainController mainController) {
         this.modelManager = modelManager;
         this.sceneManager = sceneManager;
         this.mainController = mainController;
     }
 
-    // Вызывается из MainController после инициализации всех контроллеров
     public void setTransformController(TransformController transformController) {
         this.transformController = transformController;
     }

@@ -2,7 +2,7 @@ package com.cgvsu.manager.interfaces;
 
 import javafx.scene.Node;
 
-public interface InputSystemImpl {
+public interface InputManagerImpl {
     void setupKeyboardHandlers(Node targetNode, Runnable onRenderRequest);
     void setupMouseHandlers(Node targetNode);
     void setHotkeyHandlers(Runnable onOpenModel, Runnable onSaveModel, 

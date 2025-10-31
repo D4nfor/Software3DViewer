@@ -4,7 +4,6 @@ import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import com.cgvsu.render_engine.Transform;
 
-// управление UI компонентами
 public class UIManager {
     private boolean updatingFromModel = false;
     

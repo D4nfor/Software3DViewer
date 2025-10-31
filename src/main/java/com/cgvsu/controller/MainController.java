@@ -1,10 +1,10 @@
 package com.cgvsu.controller;
 
 import com.cgvsu.manager.*;
-import com.cgvsu.manager.implementations.CameraInputSystem;
-import com.cgvsu.manager.implementations.ObjModelManager;
-import com.cgvsu.manager.interfaces.InputSystemImpl;
-import com.cgvsu.manager.interfaces.ModelManagerImpl;
+import com.cgvsu.manager.implementations.DefaultInputManager;
+import com.cgvsu.manager.implementations.ObjFileManager;
+import com.cgvsu.manager.interfaces.InputManagerImpl;
+import com.cgvsu.manager.interfaces.FileManagerImpl;
 import com.cgvsu.render_engine.rendering.RendererImpl;
 import com.cgvsu.render_engine.rendering.WireframeRenderer;
 import javafx.fxml.FXML;
@@ -19,8 +19,8 @@ public class MainController {
     private final SceneManager sceneManager;
     private final AnimationManager animationManager;
     private final UIManager uiManager;
-    private final ModelManagerImpl modelManager;
-    private final InputSystemImpl inputSystem;
+    private final FileManagerImpl modelManager;
+    private final InputManagerImpl inputManager;
     
     // Дочерние контроллеры
     private ViewportController viewportController;
@@ -32,8 +32,8 @@ public class MainController {
         this.sceneManager = new SceneManager(renderer);
         this.animationManager = new AnimationManager(this::renderFrame);
         this.uiManager = new UIManager();
-        this.modelManager = new ObjModelManager();
-        this.inputSystem = new CameraInputSystem(sceneManager.getCamera());
+        this.modelManager = new ObjFileManager();
+        this.inputManager = new DefaultInputManager(sceneManager.getCamera());
     }
 
     @FXML
@@ -49,7 +49,7 @@ public class MainController {
     private void setupChildControllers() throws IOException {
         // Фабрика для передачи зависимостей дочерним контроллерам
         ControllerFactory factory = new ControllerFactory(
-            sceneManager, animationManager, uiManager, modelManager, inputSystem, this
+            sceneManager, animationManager, uiManager, modelManager, inputManager, this
         );
 
         // Загружаем Viewport

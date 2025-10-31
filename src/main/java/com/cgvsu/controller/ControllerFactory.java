@@ -1,32 +1,32 @@
 package com.cgvsu.controller;
 
 import com.cgvsu.manager.*;
-import com.cgvsu.manager.interfaces.InputSystemImpl;
-import com.cgvsu.manager.interfaces.ModelManagerImpl;
+import com.cgvsu.manager.interfaces.InputManagerImpl;
+import com.cgvsu.manager.interfaces.FileManagerImpl;
 
 public class ControllerFactory implements javafx.util.Callback<Class<?>, Object> {
     private final SceneManager sceneManager;
     private final AnimationManager animationManager;
     private final UIManager uiManager;
-    private final ModelManagerImpl modelManager;
-    private final InputSystemImpl inputSystem;
+    private final FileManagerImpl modelManager;
+    private final InputManagerImpl inputManager;
     private final MainController mainController;
 
     public ControllerFactory(SceneManager sceneManager, AnimationManager animationManager,
-                           UIManager uiManager, ModelManagerImpl modelManager,
-                           InputSystemImpl inputSystem, MainController mainController) {
+                             UIManager uiManager, FileManagerImpl modelManager,
+                             InputManagerImpl inputSystem, MainController mainController) {
         this.sceneManager = sceneManager;
         this.animationManager = animationManager;
         this.uiManager = uiManager;
         this.modelManager = modelManager;
-        this.inputSystem = inputSystem;
+        this.inputManager = inputSystem;
         this.mainController = mainController;
     }
 
     @Override
     public Object call(Class<?> type) {
         if (type == ViewportController.class) {
-            return new ViewportController(sceneManager, animationManager, inputSystem, mainController);
+            return new ViewportController(sceneManager, animationManager, inputManager, mainController);
         } else if (type == TransformController.class) {
             return new TransformController(sceneManager, uiManager);
         } else if (type == MenuController.class) {

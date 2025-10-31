@@ -2,7 +2,7 @@ package com.cgvsu.controller;
 
 import com.cgvsu.manager.AnimationManager;
 import com.cgvsu.manager.SceneManager;
-import com.cgvsu.manager.interfaces.InputSystemImpl;
+import com.cgvsu.manager.interfaces.InputManagerImpl;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.layout.StackPane;
@@ -13,14 +13,14 @@ public class ViewportController {
 
     private final SceneManager sceneManager;
     private final AnimationManager animationManager;
-    private final InputSystemImpl inputSystem;
+    private final InputManagerImpl inputManager;
     private final MainController mainController;
 
     public ViewportController(SceneManager sceneManager, AnimationManager animationManager,
-                            InputSystemImpl inputSystem, MainController mainController) {
+                              InputManagerImpl inputSystem, MainController mainController) {
         this.sceneManager = sceneManager;
         this.animationManager = animationManager;
-        this.inputSystem = inputSystem;
+        this.inputManager = inputSystem;
         this.mainController = mainController;
     }
 
@@ -36,8 +36,8 @@ public class ViewportController {
     }
 
     private void setupInputHandlers() {
-        inputSystem.setupMouseHandlers(canvas);
-        inputSystem.setupKeyboardHandlers(canvas, mainController::requestRender);
+        inputManager.setupMouseHandlers(canvas);
+        inputManager.setupKeyboardHandlers(canvas, mainController::requestRender);
     }
 
     public void renderFrame() {

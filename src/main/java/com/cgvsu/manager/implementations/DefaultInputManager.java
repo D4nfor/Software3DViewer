@@ -1,6 +1,6 @@
 package com.cgvsu.manager.implementations;
 
-import com.cgvsu.manager.interfaces.InputSystemImpl;
+import com.cgvsu.manager.interfaces.InputManagerImpl;
 import com.cgvsu.math.Vector3f;
 import com.cgvsu.render_engine.Camera;
 import javafx.scene.Node;
@@ -8,7 +8,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 
-public class CameraInputSystem implements InputSystemImpl {
+public class DefaultInputManager implements InputManagerImpl {
     private final Camera camera;
     private boolean middleMousePressed = false;
     private double lastMouseX, lastMouseY;
@@ -21,7 +21,7 @@ public class CameraInputSystem implements InputSystemImpl {
     private Runnable onHideTransformPanel;
     private Runnable onRenderRequest;
 
-    public CameraInputSystem(Camera camera) {
+    public DefaultInputManager(Camera camera) {
         this.camera = camera;
     }
 
