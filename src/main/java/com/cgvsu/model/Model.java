@@ -6,21 +6,35 @@ import java.util.*;
 
 public class Model {
 
-    private ArrayList<Vector3f> vertices = new ArrayList<Vector3f>();
-    private ArrayList<Vector2f> textureVertices = new ArrayList<Vector2f>();
-    private ArrayList<Vector3f> normals = new ArrayList<Vector3f>();
-    private ArrayList<Polygon> polygons = new ArrayList<Polygon>();
+    private ArrayList<Vector3f> vertices;
+    private ArrayList<Vector2f> textureVertices;
+    private ArrayList<Vector3f> normals;
+    private ArrayList<Polygon> polygons;
 
+    public Model() {
+        this.vertices = new ArrayList<>();
+        this.textureVertices = new ArrayList<>();
+        this.normals = new ArrayList<>();
+        this.polygons = new ArrayList<>();
+    }
 
     public ArrayList<Vector3f> getVertices() {return vertices;}
-    public void setVertices(ArrayList<Vector3f> vertices) {this.vertices = vertices;}
+    public void setVertices(ArrayList<Vector3f> vertices) {
+        this.vertices = vertices != null ? vertices : new ArrayList<>();
+    }
 
     public ArrayList<Vector2f> getTextureVertices() {return textureVertices;}
-    public void setTextureVertices(ArrayList<Vector2f> textureVertices) {this.textureVertices = textureVertices;}
+    public void setTextureVertices(ArrayList<Vector2f> textureVertices) {
+        this.textureVertices = textureVertices != null ? textureVertices : new ArrayList<>();
+    }
 
     public ArrayList<Vector3f> getNormals() {return normals;}
-    public void setNormals(ArrayList<Vector3f> normals) {this.normals = normals;}
+    public void setNormals(ArrayList<Vector3f> normals) {
+        this.normals = normals != null ? normals : new ArrayList<>();
+    }
 
     public ArrayList<Polygon> getPolygons() {return polygons;}
-    public void setPolygons(ArrayList<Polygon> polygons) {this.polygons = polygons;}
+    public void setPolygons(ArrayList<Polygon> polygons) {
+        this.polygons = polygons != null ? polygons : new ArrayList<>();
+    }
 }

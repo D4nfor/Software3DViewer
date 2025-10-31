@@ -3,7 +3,7 @@ package com.cgvsu.manager;
 import com.cgvsu.math.Vector3f;
 import com.cgvsu.model.Model;
 import com.cgvsu.render_engine.Camera;
-import com.cgvsu.manager.interfaces.RendererImpl;
+import com.cgvsu.render_engine.rendering.RendererImpl;
 import com.cgvsu.render_engine.Transform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;

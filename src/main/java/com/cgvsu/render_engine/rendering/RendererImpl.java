@@ -1,4 +1,4 @@
-package com.cgvsu.manager.interfaces;
+package com.cgvsu.render_engine.rendering;
 
 import com.cgvsu.model.Model;
 import com.cgvsu.render_engine.Camera;

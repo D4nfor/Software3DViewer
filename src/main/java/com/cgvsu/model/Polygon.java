@@ -1,53 +1,92 @@
 package com.cgvsu.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class Polygon {
+    private final List<Integer> vertexIndices;
+    private final List<Integer> textureVertexIndices;
+    private final List<Integer> normalIndices;
 
-    private ArrayList<Integer> vertexIndices;
-    private ArrayList<Integer> textureVertexIndices;
-    private ArrayList<Integer> normalIndices;
-
-
-    public Polygon() {
-        vertexIndices = new ArrayList<Integer>();
-        textureVertexIndices = new ArrayList<Integer>();
-        normalIndices = new ArrayList<Integer>();
+    private Polygon(List<Integer> vertexIndices, List<Integer> textureVertexIndices, List<Integer> normalIndices) {
+        this.vertexIndices = vertexIndices != null ?
+                Collections.unmodifiableList(new ArrayList<>(vertexIndices)) : Collections.emptyList();
+        this.textureVertexIndices = textureVertexIndices != null ?
+                Collections.unmodifiableList(new ArrayList<>(textureVertexIndices)) : Collections.emptyList();
+        this.normalIndices = normalIndices != null ?
+                Collections.unmodifiableList(new ArrayList<>(normalIndices)) : Collections.emptyList();
     }
 
-    public void setVertexIndices(ArrayList<Integer> vertexIndices) {
-        if (vertexIndices == null) {
-            throw new IllegalArgumentException("Vertex indices cannot be null");
+    public static class Builder {
+        private List<Integer> vertexIndices = new ArrayList<>();
+        private List<Integer> textureVertexIndices = new ArrayList<>();
+        private List<Integer> normalIndices = new ArrayList<>();
+
+        public Builder addVertexIndex(int index) {
+            this.vertexIndices.add(index);
+            return this;
         }
-        if (vertexIndices.size() < 3) {
-            throw new IllegalArgumentException("Polygon must have at least 3 vertices, got: " + vertexIndices.size());
+
+        public Builder addTextureVertexIndex(int index) {
+            this.textureVertexIndices.add(index);
+            return this;
         }
-        this.vertexIndices = vertexIndices;
+
+        public Builder addNormalIndex(int index) {
+            this.normalIndices.add(index);
+            return this;
+        }
+
+        public Builder setVertexIndices(List<Integer> indices) {
+            this.vertexIndices = new ArrayList<>(indices);
+            return this;
+        }
+
+        public Builder setTextureVertexIndices(List<Integer> indices) {
+            this.textureVertexIndices = new ArrayList<>(indices);
+            return this;
+        }
+
+        public Builder setNormalIndices(List<Integer> indices) {
+            this.normalIndices = new ArrayList<>(indices);
+            return this;
+        }
+
+        public Polygon build() {
+            return new Polygon(vertexIndices, textureVertexIndices, normalIndices);
+        }
     }
 
-    public void setTextureVertexIndices(ArrayList<Integer> textureVertexIndices) {
-        if (textureVertexIndices != null && textureVertexIndices.size() < 3) {
-            throw new IllegalArgumentException("Texture vertex indices must have at least 3 elements if provided, got: " + textureVertexIndices.size());
-        }
-        this.textureVertexIndices = textureVertexIndices;
-    }
-
-    public void setNormalIndices(ArrayList<Integer> normalIndices) {
-        if (normalIndices != null && normalIndices.size() < 3) {
-            throw new IllegalArgumentException("Normal indices must have at least 3 elements if provided, got: " + normalIndices.size());
-        }
-        this.normalIndices = normalIndices;
-    }
-
-    public ArrayList<Integer> getVertexIndices() {
+    public List<Integer> getVertexIndices() {
         return vertexIndices;
     }
 
-    public ArrayList<Integer> getTextureVertexIndices() {
+    public List<Integer> getTextureVertexIndices() {
         return textureVertexIndices;
     }
 
-    public ArrayList<Integer> getNormalIndices() {
+    public List<Integer> getNormalIndices() {
         return normalIndices;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public Builder toBuilder() {
+        return new Builder()
+                .setVertexIndices(vertexIndices)
+                .setTextureVertexIndices(textureVertexIndices)
+                .setNormalIndices(normalIndices);
+    }
+
+    @Override
+    public String toString() {
+        return "Polygon{" +
+                "vertices=" + vertexIndices.size() +
+                ", textures=" + textureVertexIndices.size() +
+                ", normals=" + normalIndices.size() +
+                '}';
     }
 }

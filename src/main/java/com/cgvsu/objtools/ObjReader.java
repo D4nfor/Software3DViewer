@@ -100,26 +100,48 @@ public class ObjReader {
     }
 
     protected static Polygon parseFace(final ArrayList<String> wordsInLineWithoutToken, int lineInd) {
-        ArrayList<Integer> onePolygonVertexIndices = new ArrayList<Integer>();
-        ArrayList<Integer> onePolygonTextureVertexIndices = new ArrayList<Integer>();
-        ArrayList<Integer> onePolygonNormalIndices = new ArrayList<Integer>();
+        // Создаем билдер для полигона
+        Polygon.Builder builder = Polygon.builder();
 
-        for (String s : wordsInLineWithoutToken) {
-            parseFaceWord(s, onePolygonVertexIndices, onePolygonTextureVertexIndices, onePolygonNormalIndices, lineInd);
+        for (String vertexStr : wordsInLineWithoutToken) {
+            parseFaceWord(vertexStr, builder, lineInd);
         }
 
-        if (onePolygonVertexIndices.size() < 3) {
+        // Проверяем, что есть хотя бы 3 вершины
+        Polygon polygon = builder.build();
+        if (polygon.getVertexIndices().size() < 3) {
             throw new ObjReaderException("Polygon must have at least 3 vertices.", lineInd);
         }
 
-        Polygon result = new Polygon();
-        result.setVertexIndices(onePolygonVertexIndices);
+        return polygon;
+    }
 
-        result.setTextureVertexIndices(onePolygonTextureVertexIndices.isEmpty() ? null : onePolygonTextureVertexIndices);
+    protected static void parseFaceWord(String vertexStr, Polygon.Builder builder, int lineInd) {
+        String[] vertexData = vertexStr.split("/");
 
-        result.setNormalIndices(onePolygonNormalIndices.isEmpty() ? null : onePolygonNormalIndices);
+        try {
+            // Индекс вершины (обязательный)
+            if (vertexData.length > 0 && !vertexData[0].isEmpty()) {
+                int vertexIndex = Integer.parseInt(vertexData[0]) - 1; // OBJ uses 1-based indexing
+                builder.addVertexIndex(vertexIndex);
+            } else {
+                throw new ObjReaderException("Vertex index is missing.", lineInd);
+            }
 
-        return result;
+            // Текстурные координаты (опционально)
+            if (vertexData.length > 1 && !vertexData[1].isEmpty()) {
+                int textureIndex = Integer.parseInt(vertexData[1]) - 1;
+                builder.addTextureVertexIndex(textureIndex);
+            }
+
+            // Нормали (опционально)
+            if (vertexData.length > 2 && !vertexData[2].isEmpty()) {
+                int normalIndex = Integer.parseInt(vertexData[2]) - 1;
+                builder.addNormalIndex(normalIndex);
+            }
+        } catch (NumberFormatException e) {
+            throw new ObjReaderException("Failed to parse face element: " + vertexStr, lineInd);
+        }
     }
 
     // Обратите внимание, что для чтения полигонов я выделил еще один вспомогательный метод.

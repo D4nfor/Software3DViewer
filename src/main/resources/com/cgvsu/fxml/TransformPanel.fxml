@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefWidth="250" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.cgvsu.controller.TransformController">
+    <VBox fx:id="transformPanel"
+          spacing="15" alignment="CENTER"
+          AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
+          AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0"
+          style="-fx-background-color: rgba(240,240,240,0.9);
+                 -fx-padding: 10;
+                 -fx-border-color: #ccc;
+                 -fx-border-width: 1;" >
+
+        <!-- Position -->
+        <VBox spacing="5">
+            <Label text="Position" style="-fx-font-weight: bold;"/>
+            <HBox spacing="5">
+                <Label text="X:"/>
+                <Spinner fx:id="translateXField" prefWidth="80"/>
+            </HBox>
+            <HBox spacing="5">
+                <Label text="Y:"/>
+                <Spinner fx:id="translateYField" prefWidth="80"/>
+            </HBox>
+            <HBox spacing="5">
+                <Label text="Z:"/>
+                <Spinner fx:id="translateZField" prefWidth="80"/>
+            </HBox>
+        </VBox>
+
+        <!-- Rotation -->
+        <VBox spacing="5">
+            <Label text="Rotation (°)" style="-fx-font-weight: bold;"/>
+            <HBox spacing="5">
+                <Label text="X:"/>
+                <Spinner fx:id="rotateXField" prefWidth="80"/>
+            </HBox>
+            <HBox spacing="5">
+                <Label text="Y:"/>
+                <Spinner fx:id="rotateYField" prefWidth="80"/>
+            </HBox>
+            <HBox spacing="5">
+                <Label text="Z:"/>
+                <Spinner fx:id="rotateZField" prefWidth="80"/>
+            </HBox>
+        </VBox>
+
+        <!-- Scale -->
+        <VBox spacing="5">
+            <Label text="Scale" style="-fx-font-weight: bold;"/>
+            <HBox spacing="5">
+                <Label text="X:"/>
+                <Spinner fx:id="scaleXField" prefWidth="80"/>
+            </HBox>
+            <HBox spacing="5">
+                <Label text="Y:"/>
+                <Spinner fx:id="scaleYField" prefWidth="80"/>
+            </HBox>
+            <HBox spacing="5">
+                <Label text="Z:"/>
+                <Spinner fx:id="scaleZField" prefWidth="80"/>
+            </HBox>
+        </VBox>
+
+        <!-- Button -->
+        <VBox spacing="5" alignment="CENTER_LEFT">
+            <Button fx:id="resetButton" text="Reset" onAction="#handleResetTransform"
+                    style="-fx-pref-width: 80;"/>
+        </VBox>
+    </VBox>
+</AnchorPane>

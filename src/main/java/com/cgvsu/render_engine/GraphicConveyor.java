@@ -5,7 +5,6 @@ import com.cgvsu.math.Vector3f;
 import com.cgvsu.math.Matrix4f;
 
 public class GraphicConveyor {
-    // Матрица масштабирования
     public static Matrix4f scale(float scaleX, float scaleY, float scaleZ) {
         float[][] data = new float[][]{
                 {scaleX, 0, 0, 0},
@@ -16,7 +15,6 @@ public class GraphicConveyor {
         return new Matrix4f(data);
     }
 
-    // Матрица вращения вокруг оси X ПРОТИВ часовой стрелки
     public static Matrix4f rotateX(float angle) {
         float cos = (float) Math.cos(angle);
         float sin = (float) Math.sin(angle);
@@ -29,7 +27,6 @@ public class GraphicConveyor {
         return new Matrix4f(data);
     }
 
-    // Матрица вращения вокруг оси Y ПРОТИВ часовой стрелки
     public static Matrix4f rotateY(float angle) {
         float cos = (float) Math.cos(angle);
         float sin = (float) Math.sin(angle);
@@ -42,7 +39,6 @@ public class GraphicConveyor {
         return new Matrix4f(data);
     }
 
-    // Матрица вращения вокруг оси Z ПРОТИВ часовой стрелки
     public static Matrix4f rotateZ(float angle) {
         float cos = (float) Math.cos(angle);
         float sin = (float) Math.sin(angle);
@@ -55,7 +51,6 @@ public class GraphicConveyor {
         return new Matrix4f(data);
     }
 
-    // Матрица переноса
     public static Matrix4f translate(float tx, float ty, float tz) {
         float[][] data = new float[][]{
                 {1, 0, 0, tx},
@@ -77,17 +72,11 @@ public class GraphicConveyor {
         Matrix4f rotateZMatrix = rotateZ(rotateZ);
         Matrix4f translateMatrix = translate(translateX, translateY, translateZ);
 
-        // Y * X * Z - более интуитивный порядок
         Matrix4f rotationMatrix = rotateZMatrix.multiply(rotateYMatrix).multiply(rotateXMatrix);
-        // Порядок: scale -> rotate -> translate
+
         Matrix4f modelMatrix = translateMatrix.multiply(rotationMatrix).multiply(scaleMatrix);
 
         return modelMatrix;
-    }
-
-    // Старый метод для обратной совместимости
-    public static Matrix4f rotateScaleTranslate() {
-        return createModelMatrix(1, 1, 1, 0, 0, 0, 0, 0, 0);
     }
 
     public static Matrix4f lookAt(Vector3f eye, Vector3f target) {
@@ -97,7 +86,6 @@ public class GraphicConveyor {
     public static Matrix4f lookAt(Vector3f eye, Vector3f target, Vector3f up) {
         Vector3f direction = target.subtract(eye);
 
-        // Защита от нулевого вектора
         if (direction.length() < 0.0001f) {
             direction = new Vector3f(0, 0, -1);
         }
@@ -108,7 +96,6 @@ public class GraphicConveyor {
 
         float[][] data = new float[4][4];
 
-        // Для векторов-столбцов матрица выглядит так:
         data[0][0] = x.getX(); data[0][1] = x.getY(); data[0][2] = x.getZ(); data[0][3] = -x.dot(eye);
         data[1][0] = y.getX(); data[1][1] = y.getY(); data[1][2] = y.getZ(); data[1][3] = -y.dot(eye);
         data[2][0] = z.getX(); data[2][1] = z.getY(); data[2][2] = z.getZ(); data[2][3] = -z.dot(eye);
@@ -142,8 +129,6 @@ public class GraphicConveyor {
     }
 
     public static Vector3f multiplyMatrix4ByVector3(Matrix4f m, Vector3f v) {
-        // Умножение матрицы на вектор-столбец
-        // используем Vector4f явно
         float x = v.getX(), y = v.getY(), z = v.getZ(), w = 1.0f;
         float rx = m.get(0,0)*x + m.get(0,1)*y + m.get(0,2)*z + m.get(0,3)*w;
         float ry = m.get(1,0)*x + m.get(1,1)*y + m.get(1,2)*z + m.get(1,3)*w;
@@ -151,20 +136,17 @@ public class GraphicConveyor {
         float rw = m.get(3,0)*x + m.get(3,1)*y + m.get(3,2)*z + m.get(3,3)*w;
 
         if (Math.abs(rw) < 1e-6f) {
-            // не делим на ноль — можно вернуть без деления или с eps
-            return new Vector3f(rx, ry, rz); // или rx/eps...
+            return new Vector3f(rx, ry, rz);
         }
 
         return new Vector3f(rx / rw, ry / rw, rz / rw);
     }
 
     public static Point2f vertexToPoint(Vector3f v, int width, int height) {
-        // предполагаем, что v.x, v.y находятся в [-1, 1]
         float x_ndc = v.getX();
         float y_ndc = v.getY();
-        float x_screen = (x_ndc + 1.0f) * 0.5f * width;          // (x+1)/2 * width
-        float y_screen = (y_ndc + 1.0f) * 0.5f * height; // flip Y: top-left origin
+        float x_screen = (x_ndc + 1.0f) * 0.5f * width;
+        float y_screen = (y_ndc + 1.0f) * 0.5f * height;
         return new Point2f(x_screen, y_screen);
     }
-
 }

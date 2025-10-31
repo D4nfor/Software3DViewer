@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.layout.StackPane?>
+
+<StackPane fx:id="canvasContainer" xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.cgvsu.controller.ViewportController"
+           style="-fx-border-color: red;">
+    <Canvas fx:id="canvas" width="700" height="700"/>
+</StackPane>

@@ -10,7 +10,6 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -20,6 +19,51 @@ public class ObjWriterTest {
     @TempDir
     Path tempDir;
 
+    // Вспомогательный метод для создания полигона с иммутабельным API
+    private Polygon createPolygon(int... vertexIndices) {
+        Polygon.Builder builder = Polygon.builder();
+        for (int index : vertexIndices) {
+            builder.addVertexIndex(index);
+        }
+        return builder.build();
+    }
+
+    private Polygon createPolygonWithTexture(int[] vertexIndices, int[] textureIndices) {
+        Polygon.Builder builder = Polygon.builder();
+        for (int i = 0; i < vertexIndices.length; i++) {
+            builder.addVertexIndex(vertexIndices[i]);
+            if (i < textureIndices.length) {
+                builder.addTextureVertexIndex(textureIndices[i]);
+            }
+        }
+        return builder.build();
+    }
+
+    private Polygon createPolygonWithNormal(int[] vertexIndices, int[] normalIndices) {
+        Polygon.Builder builder = Polygon.builder();
+        for (int i = 0; i < vertexIndices.length; i++) {
+            builder.addVertexIndex(vertexIndices[i]);
+            if (i < normalIndices.length) {
+                builder.addNormalIndex(normalIndices[i]);
+            }
+        }
+        return builder.build();
+    }
+
+    private Polygon createPolygonWithAll(int[] vertexIndices, int[] textureIndices, int[] normalIndices) {
+        Polygon.Builder builder = Polygon.builder();
+        for (int i = 0; i < vertexIndices.length; i++) {
+            builder.addVertexIndex(vertexIndices[i]);
+            if (i < textureIndices.length) {
+                builder.addTextureVertexIndex(textureIndices[i]);
+            }
+            if (i < normalIndices.length) {
+                builder.addNormalIndex(normalIndices[i]);
+            }
+        }
+        return builder.build();
+    }
+
     // Основная функциональность - корректный вывод формата
     @Test
     public void testBasicOutputFormat() {
@@ -27,8 +71,7 @@ public class ObjWriterTest {
         model.getVertices().add(new Vector3f(1.0f, 2.0f, 3.0f));
         model.getVertices().add(new Vector3f(4.0f, 5.0f, 6.0f));
 
-        Polygon polygon = new Polygon();
-        polygon.setVertexIndices(new ArrayList<>(Arrays.asList(0, 1, 0)));
+        Polygon polygon = createPolygon(0, 1, 0);
         model.getPolygons().add(polygon);
 
         String result = ObjWriter.modelToString(model);
@@ -54,8 +97,7 @@ public class ObjWriterTest {
         Model model = new Model();
         model.getVertices().add(new Vector3f(1.0f, 0.0f, 0.0f));
 
-        Polygon polygon = new Polygon();
-        polygon.setVertexIndices(new ArrayList<>(Arrays.asList(0, 0, 0)));
+        Polygon polygon = createPolygon(0, 0, 0);
         model.getPolygons().add(polygon);
 
         String result = ObjWriter.modelToString(model);
@@ -70,9 +112,7 @@ public class ObjWriterTest {
         model.getVertices().add(new Vector3f(1.0f, 0.0f, 0.0f));
         model.getTextureVertices().add(new Vector2f(0.5f, 0.5f));
 
-        Polygon polygon = new Polygon();
-        polygon.setVertexIndices(new ArrayList<>(Arrays.asList(0, 0, 0)));
-        polygon.setTextureVertexIndices(new ArrayList<>(Arrays.asList(0, 0, 0)));
+        Polygon polygon = createPolygonWithTexture(new int[]{0, 0, 0}, new int[]{0, 0, 0});
         model.getPolygons().add(polygon);
 
         String result = ObjWriter.modelToString(model);
@@ -86,9 +126,7 @@ public class ObjWriterTest {
         model.getVertices().add(new Vector3f(1.0f, 0.0f, 0.0f));
         model.getNormals().add(new Vector3f(0.0f, 1.0f, 0.0f));
 
-        Polygon polygon = new Polygon();
-        polygon.setVertexIndices(new ArrayList<>(Arrays.asList(0, 0, 0)));
-        polygon.setNormalIndices(new ArrayList<>(Arrays.asList(0, 0, 0)));
+        Polygon polygon = createPolygonWithNormal(new int[]{0, 0, 0}, new int[]{0, 0, 0});
         model.getPolygons().add(polygon);
 
         String result = ObjWriter.modelToString(model);
@@ -103,10 +141,11 @@ public class ObjWriterTest {
         model.getTextureVertices().add(new Vector2f(0.5f, 0.5f));
         model.getNormals().add(new Vector3f(0.0f, 1.0f, 0.0f));
 
-        Polygon polygon = new Polygon();
-        polygon.setVertexIndices(new ArrayList<>(Arrays.asList(0, 0, 0)));
-        polygon.setTextureVertexIndices(new ArrayList<>(Arrays.asList(0, 0, 0)));
-        polygon.setNormalIndices(new ArrayList<>(Arrays.asList(0, 0, 0)));
+        Polygon polygon = createPolygonWithAll(
+                new int[]{0, 0, 0},
+                new int[]{0, 0, 0},
+                new int[]{0, 0, 0}
+        );
         model.getPolygons().add(polygon);
 
         String result = ObjWriter.modelToString(model);
@@ -119,8 +158,7 @@ public class ObjWriterTest {
         Model model = new Model();
         model.getVertices().add(new Vector3f(1.0f, 2.0f, 3.0f));
 
-        Polygon polygon = new Polygon();
-        polygon.setVertexIndices(new ArrayList<>(Arrays.asList(0, 0, 0)));
+        Polygon polygon = createPolygon(0, 0, 0);
         model.getPolygons().add(polygon);
 
         Path filePath = tempDir.resolve("test.obj");
@@ -144,8 +182,7 @@ public class ObjWriterTest {
         Model model = new Model();
         model.getVertices().add(new Vector3f(Float.NaN, 0.0f, 0.0f));
 
-        Polygon polygon = new Polygon();
-        polygon.setVertexIndices(new ArrayList<>(Arrays.asList(0, 0, 0)));
+        Polygon polygon = createPolygon(0, 0, 0);
         model.getPolygons().add(polygon);
 
         ObjWriterException exception = assertThrows(ObjWriterException.class,
@@ -161,8 +198,7 @@ public class ObjWriterTest {
         model.getVertices().add(new Vector3f(0.0f, 1.0f, 0.0f)); // index 1
         model.getVertices().add(new Vector3f(0.0f, 0.0f, 1.0f)); // index 2
 
-        Polygon polygon = new Polygon();
-        polygon.setVertexIndices(new ArrayList<>(Arrays.asList(0, 1, 2))); // 0-based
+        Polygon polygon = createPolygon(0, 1, 2); // 0-based
         model.getPolygons().add(polygon);
 
         String result = ObjWriter.modelToString(model);
@@ -179,10 +215,11 @@ public class ObjWriterTest {
         model.getVertices().add(new Vector3f(1.0f, 0.0f, 0.0f));
         model.getTextureVertices().add(new Vector2f(0.5f, 0.5f));
 
-        Polygon polygon = new Polygon();
-        polygon.setVertexIndices(new ArrayList<>(Arrays.asList(0, 0, 0)));
-        polygon.setTextureVertexIndices(new ArrayList<>(Arrays.asList(0, 0, 0)));
-        polygon.setNormalIndices(new ArrayList<>(Arrays.asList(0, 0, 0)));
+        Polygon polygon = createPolygonWithAll(
+                new int[]{0, 0, 0},
+                new int[]{0, 0, 0},
+                new int[]{0, 0, 0}
+        );
         model.getPolygons().add(polygon);
 
         String result = ObjWriter.modelToString(model);
@@ -208,5 +245,22 @@ public class ObjWriterTest {
         assertTrue(result.contains("Exported by"));
         assertFalse(result.contains("v "), "No vertices in empty model");
         assertFalse(result.contains("f "), "No faces in empty model");
+    }
+
+    // Дополнительные тесты для иммутабельных полигонов
+    @Test
+    public void testImmutablePolygonCreation() {
+        Polygon polygon = createPolygon(0, 1, 2);
+
+        // Проверяем, что полигон действительно иммутабелен
+        assertEquals(3, polygon.getVertexIndices().size());
+        assertEquals(0, polygon.getVertexIndices().get(0).intValue());
+        assertEquals(1, polygon.getVertexIndices().get(1).intValue());
+        assertEquals(2, polygon.getVertexIndices().get(2).intValue());
+
+        // Проверяем, что списки неизменяемы
+        assertThrows(UnsupportedOperationException.class, () -> {
+            polygon.getVertexIndices().add(3);
+        });
     }
 }

@@ -1,6 +1,7 @@
 module com.cgvsu {
     requires javafx.controls;
     requires javafx.fxml;
+    requires java.desktop;
 
     // Экспортируем все пакеты, которые используются в FXML
     exports com.cgvsu;
@@ -22,4 +23,6 @@ module com.cgvsu {
     opens com.cgvsu.manager.implementations to javafx.fxml;
     exports com.cgvsu.manager.interfaces;
     opens com.cgvsu.manager.interfaces to javafx.fxml;
+    exports com.cgvsu.render_engine.rendering;
+    opens com.cgvsu.render_engine.rendering to javafx.fxml;
 }
