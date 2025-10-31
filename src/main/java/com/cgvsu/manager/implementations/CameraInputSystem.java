@@ -1,5 +1,6 @@
-package com.cgvsu.manager;
+package com.cgvsu.manager.implementations;
 
+import com.cgvsu.manager.interfaces.InputSystemImpl;
 import com.cgvsu.math.Vector3f;
 import com.cgvsu.render_engine.Camera;
 import javafx.scene.Node;
@@ -7,76 +8,79 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 
-// все бинды
-public class InputManager {
+public class CameraInputSystem implements InputSystemImpl {
     private final Camera camera;
-
-    // Состояние мыши
     private boolean middleMousePressed = false;
     private double lastMouseX, lastMouseY;
-
-    // Настройки чувствительности
     private float mouseSensitivity = 0.2f;
     private float moveSpeed = 0.5f;
-
-    // Делегаты горячих клавиш
+    
     private Runnable onOpenModel;
     private Runnable onSaveModel;
     private Runnable onShowTransformPanel;
     private Runnable onHideTransformPanel;
     private Runnable onRenderRequest;
 
-    public InputManager(Camera camera) {
+    public CameraInputSystem(Camera camera) {
         this.camera = camera;
     }
 
-    public void setHotkeyHandlers(Runnable onOpenModel,
-                                  Runnable onSaveModel,
-                                  Runnable onShowTransformPanel,
-                                  Runnable onHideTransformPanel) {
+    @Override
+    public void setupKeyboardHandlers(Node targetNode, Runnable onRenderRequest) {
+        this.onRenderRequest = onRenderRequest;
+        targetNode.setFocusTraversable(true);
+        
+        targetNode.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            handleKeyPressed(event);
+        });
+    }
+
+    @Override
+    public void setupMouseHandlers(Node targetNode) {
+        targetNode.setOnMousePressed(this::handleMousePressed);
+        targetNode.setOnMouseReleased(this::handleMouseReleased);
+        targetNode.setOnMouseDragged(this::handleMouseDragged);
+        targetNode.setOnScroll(this::handleMouseScroll);
+    }
+
+    @Override
+    public void setHotkeyHandlers(Runnable onOpenModel, Runnable onSaveModel, 
+                                 Runnable onShowTransformPanel, Runnable onHideTransformPanel) {
         this.onOpenModel = onOpenModel;
         this.onSaveModel = onSaveModel;
         this.onShowTransformPanel = onShowTransformPanel;
         this.onHideTransformPanel = onHideTransformPanel;
     }
 
-    public void setupKeyboardHandlers(Node targetNode, Runnable onRenderRequest) {
-        this.onRenderRequest = onRenderRequest;
-
-        targetNode.setFocusTraversable(true);
-        targetNode.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
-            if (event.isControlDown()) {
-                switch (event.getCode()) {
-                    case O -> { if (onOpenModel != null) onOpenModel.run(); event.consume(); return; }
-                    case S -> { if (onSaveModel != null) onSaveModel.run(); event.consume(); return; }
-                    case T -> { if (onShowTransformPanel != null) onShowTransformPanel.run(); event.consume(); return; }
-                    case G -> { if (onHideTransformPanel != null) onHideTransformPanel.run(); event.consume(); return; }
-                }
-            }
-
+    private void handleKeyPressed(KeyEvent event) {
+        boolean cameraMoved = false;
+        
+        if (event.isControlDown()) {
             switch (event.getCode()) {
-                case W -> camera.moveForward(moveSpeed);
-                case S -> camera.moveBackward(moveSpeed);
-                case A -> camera.moveLeft(moveSpeed);
-                case D -> camera.moveRight(moveSpeed);
-                case SPACE -> camera.moveUp(moveSpeed);
-                case SHIFT -> camera.moveDown(moveSpeed);
-                case R -> resetCamera();
+                case O -> { if (onOpenModel != null) { onOpenModel.run(); event.consume(); return; } }
+                case S -> { if (onSaveModel != null) { onSaveModel.run(); event.consume(); return; } }
+                case T -> { if (onShowTransformPanel != null) { onShowTransformPanel.run(); event.consume(); return; } }
+                case G -> { if (onHideTransformPanel != null) { onHideTransformPanel.run(); event.consume(); return; } }
             }
+        }
 
-            if (onRenderRequest != null) onRenderRequest.run();
-        });
+        switch (event.getCode()) {
+            case W -> { camera.moveForward(moveSpeed); cameraMoved = true; }
+            case S -> { camera.moveBackward(moveSpeed); cameraMoved = true; }
+            case A -> { camera.moveLeft(moveSpeed); cameraMoved = true; }
+            case D -> { camera.moveRight(moveSpeed); cameraMoved = true; }
+            case SPACE -> { camera.moveUp(moveSpeed); cameraMoved = true; }
+            case SHIFT -> { camera.moveDown(moveSpeed); cameraMoved = true; }
+            case R -> { resetCamera(); cameraMoved = true; }
+        }
+
+        if (cameraMoved && onRenderRequest != null) {
+            onRenderRequest.run();
+        }
     }
 
     private void resetCamera() {
         camera.reset(new Vector3f(0, 0, 50), new Vector3f(0, 0, 0));
-    }
-
-    public void setupMouseHandlers(Node targetNode) {
-        targetNode.setOnMousePressed(this::handleMousePressed);
-        targetNode.setOnMouseReleased(this::handleMouseReleased);
-        targetNode.setOnMouseDragged(this::handleMouseDragged);
-        targetNode.setOnScroll(this::handleMouseScroll);
     }
 
     private void handleMousePressed(MouseEvent event) {
@@ -126,8 +130,13 @@ public class InputManager {
         event.consume();
     }
 
-    public void setMouseSensitivity(float sensitivity) { this.mouseSensitivity = sensitivity; }
-    public void setMoveSpeed(float speed) { this.moveSpeed = speed; }
-    public float getMouseSensitivity() { return mouseSensitivity; }
-    public float getMoveSpeed() { return moveSpeed; }
+    @Override
+    public void setMouseSensitivity(float sensitivity) { 
+        this.mouseSensitivity = sensitivity; 
+    }
+    
+    @Override
+    public void setMoveSpeed(float speed) { 
+        this.moveSpeed = speed; 
+    }
 }

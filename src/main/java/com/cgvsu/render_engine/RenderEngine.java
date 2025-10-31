@@ -5,29 +5,13 @@ import java.util.ArrayList;
 import com.cgvsu.math.Vector3f;
 import com.cgvsu.math.Point2f;
 import com.cgvsu.math.Matrix4f;
+import com.cgvsu.model.Polygon;
 import javafx.scene.canvas.GraphicsContext;
 import com.cgvsu.model.Model;
 
 import static com.cgvsu.render_engine.GraphicConveyor.*;
 
 public class RenderEngine {
-    // Старый метод для обратной совместимости
-    public static void render(
-            final GraphicsContext graphicsContext,
-            final Camera camera,
-            final Model mesh,
-            final int width,
-            final int height) {
-
-        Matrix4f modelMatrix = rotateScaleTranslate();
-        Matrix4f viewMatrix = camera.getViewMatrix();
-        Matrix4f projectionMatrix = camera.getProjectionMatrix();
-
-        Matrix4f modelViewProjectionMatrix = projectionMatrix.multiply(viewMatrix).multiply(modelMatrix);
-
-        renderModel(graphicsContext, mesh, modelViewProjectionMatrix, width, height);
-    }
-
     public static void render(
             final GraphicsContext graphicsContext,
             final Camera camera,
@@ -41,7 +25,6 @@ public class RenderEngine {
         Matrix4f viewMatrix = camera.getViewMatrix();
         Matrix4f projectionMatrix = camera.getProjectionMatrix();
 
-        // Правильный порядок для векторов-столбцов
         // MVP = projection * view * model
         Matrix4f modelViewProjectionMatrix = projectionMatrix.multiply(viewMatrix).multiply(modelMatrix);
 
@@ -95,5 +78,35 @@ public class RenderEngine {
                 transform.rotateX, transform.rotateY, transform.rotateZ,
                 transform.translateX, transform.translateY, transform.translateZ
         );
+    }
+
+    public static Model applyTransform(Model originalModel, Transform transform) {
+        if (originalModel == null) return null;
+
+        Matrix4f modelMatrix = createModelMatrix(transform);
+
+        Model transformedModel = new Model();
+
+        ArrayList<Vector3f> newVertices = new ArrayList<>();
+        for (Vector3f vertex : originalModel.getVertices()) {
+            Vector3f transformedVertex = multiplyMatrix4ByVector3(modelMatrix, vertex);
+            newVertices.add(transformedVertex);
+        }
+        transformedModel.setVertices(newVertices);
+
+        transformedModel.setTextureVertices(new ArrayList<>(originalModel.getTextureVertices()));
+        transformedModel.setNormals(new ArrayList<>(originalModel.getNormals()));
+
+        ArrayList<Polygon> newPolygons = new ArrayList<>();
+        for (Polygon polygon : originalModel.getPolygons()) {
+            Polygon newPolygon = new Polygon();
+            newPolygon.setVertexIndices(new ArrayList<>(polygon.getVertexIndices()));
+            newPolygon.setTextureVertexIndices(new ArrayList<>(polygon.getTextureVertexIndices()));
+            newPolygon.setNormalIndices(new ArrayList<>(polygon.getNormalIndices()));
+            newPolygons.add(newPolygon);
+        }
+        transformedModel.setPolygons(newPolygons);
+
+        return transformedModel;
     }
 }
