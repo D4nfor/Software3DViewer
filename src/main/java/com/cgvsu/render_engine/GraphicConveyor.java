@@ -3,6 +3,7 @@ package com.cgvsu.render_engine;
 import com.cgvsu.utils.math.Point2f;
 import com.cgvsu.utils.math.Vector3f;
 import com.cgvsu.utils.math.Matrix4f;
+import com.cgvsu.utils.math.Vector4f;
 
 public class GraphicConveyor {
     public static Matrix4f scale(float scaleX, float scaleY, float scaleZ) {
@@ -129,17 +130,14 @@ public class GraphicConveyor {
     }
 
     public static Vector3f multiplyMatrix4ByVector3(Matrix4f m, Vector3f v) {
-        float x = v.getX(), y = v.getY(), z = v.getZ(), w = 1.0f;
-        float rx = m.get(0,0)*x + m.get(0,1)*y + m.get(0,2)*z + m.get(0,3)*w;
-        float ry = m.get(1,0)*x + m.get(1,1)*y + m.get(1,2)*z + m.get(1,3)*w;
-        float rz = m.get(2,0)*x + m.get(2,1)*y + m.get(2,2)*z + m.get(2,3)*w;
-        float rw = m.get(3,0)*x + m.get(3,1)*y + m.get(3,2)*z + m.get(3,3)*w;
+        Vector4f v4 = m.multiply(new Vector4f(v.getX(), v.getY(), v.getZ(), 1.0f));
+        float w = v4.getW();
 
-        if (Math.abs(rw) < 1e-6f) {
-            return new Vector3f(rx, ry, rz);
+        if (Math.abs(w) < 1e-6f) {
+            return new Vector3f(v4.getX(), v4.getY(), v4.getZ());
         }
 
-        return new Vector3f(rx / rw, ry / rw, rz / rw);
+        return new Vector3f(v4.getX()/w, v4.getY()/w, v4.getZ()/w);
     }
 
     public static Point2f vertexToPoint(Vector3f v, int width, int height) {

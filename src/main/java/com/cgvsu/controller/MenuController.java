@@ -79,6 +79,7 @@ public class MenuController {
         }
     }
 
+
     private void onModelLoaded(Model model) {
         sceneManager.setModel(model);
         sceneManager.resetTransform();
