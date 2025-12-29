@@ -30,15 +30,4 @@
         </MenuItem>
     </Menu>
 
-
-
-    <Menu mnemonicParsing="false" text="Animation">
-        <MenuItem fx:id="animationMenuItem" mnemonicParsing="false" onAction="#onAnimationMenuItemClick" text="Start/Stop Animation">
-            <accelerator>
-                <KeyCodeCombination alt="UP" control="DOWN" meta="UP" shift="UP" shortcut="UP" code="O"/>
-            </accelerator>
-        </MenuItem>
-    </Menu>
-
-
 </MenuBar>

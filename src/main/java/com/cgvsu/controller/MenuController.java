@@ -3,16 +3,16 @@ package com.cgvsu.controller;
 import com.cgvsu.manager.SceneManager;
 import com.cgvsu.manager.interfaces.FileManagerImpl;
 import com.cgvsu.model.Model;
-import javafx.animation.AnimationTimer;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.MenuBar;
 
 import java.util.Optional;
-import java.util.Random;
 
 public class MenuController {
     @FXML private MenuBar menuBar;
-    @FXML private MenuItem animationMenuItem;
 
     private final FileManagerImpl modelManager;
     private final SceneManager sceneManager;
@@ -78,94 +78,8 @@ public class MenuController {
             transformController.hidePanel();
         }
     }
-    // ЭТО УДАЛИТЬ
-    private boolean isAnimating = false;
-    private AnimationTimer simpleAnimationTimer;
-    private float animationTime = 0;
-    private Random random = new Random();
-    @FXML
-    private void onAnimationMenuItemClick() {
-        if (transformController == null || sceneManager.getModel() == null) {
-            showAlert("Error", "Please load a model first.");
-            return;
-        }
 
-        if (isAnimating) {
-            stopSimpleAnimation();
-            animationMenuItem.setText("Start Random Animation");
-        } else {
-            startRandomAnimation();
-            animationMenuItem.setText("Stop Animation");
-        }
 
-        isAnimating = !isAnimating;
-    }
-
-    private void startRandomAnimation() {
-        stopSimpleAnimation();
-
-        simpleAnimationTimer = new AnimationTimer() {
-            private long lastTime = 0;
-            private float timeSinceLastChange = 0;
-
-            @Override
-            public void handle(long now) {
-                if (lastTime == 0) {
-                    lastTime = now;
-                    return;
-                }
-
-                float deltaTime = (now - lastTime) / 1_000_000_000.0f;
-                lastTime = now;
-                animationTime += deltaTime;
-                timeSinceLastChange += deltaTime;
-
-                float changeInterval = 0.3f;
-                if (timeSinceLastChange >= changeInterval) {
-                    timeSinceLastChange = 0;
-
-                    transformController.setScaleX(random.nextFloat() * 1.5f + 0.5f);     // 0.5 - 2.0
-                    transformController.setScaleY(random.nextFloat() * 1.5f + 0.5f);
-                    transformController.setScaleZ(random.nextFloat() * 1.5f + 0.5f);
-                    transformController.setRotateX(random.nextFloat() * 15f);
-                    transformController.setRotateY(random.nextFloat() * 15f);
-                    transformController.setRotateZ(random.nextFloat() * 15f);
-                    transformController.setTranslateX(random.nextFloat() * 4f - 2f);     // -1.0 - +1.0
-                    transformController.setTranslateY(random.nextFloat() * 2f - 1f);
-                    transformController.setTranslateZ(random.nextFloat() * 4f - 2f);
-
-                    transformController.applyTransform();
-                    mainController.requestRender();
-                }
-            }
-        };
-
-        simpleAnimationTimer.start();
-    }
-
-    private void stopSimpleAnimation() {
-        if (simpleAnimationTimer != null) {
-            simpleAnimationTimer.stop();
-            simpleAnimationTimer = null;
-        }
-
-        animationTime = 0;
-        if (transformController != null) {
-            transformController.setScaleX(1.0f);
-            transformController.setScaleY(1.0f);
-            transformController.setScaleZ(1.0f);
-            transformController.setRotateX(0.0f);
-            transformController.setRotateY(0.0f);
-            transformController.setRotateZ(0.0f);
-            transformController.setTranslateX(0.0f);
-            transformController.setTranslateY(0.0f);
-            transformController.setTranslateZ(0.0f);
-            transformController.applyTransform();
-            mainController.requestRender();
-        }
-        isAnimating = false;
-    }
-    // конец
     private void onModelLoaded(Model model) {
         sceneManager.setModel(model);
         sceneManager.resetTransform();
