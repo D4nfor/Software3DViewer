@@ -4,14 +4,18 @@ import com.cgvsu.manager.SceneManager;
 import com.cgvsu.manager.interfaces.FileManagerImpl;
 import com.cgvsu.model.Model;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.MenuBar;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public class MenuController {
+
     @FXML private MenuBar menuBar;
 
     private final FileManagerImpl modelManager;
@@ -32,9 +36,9 @@ public class MenuController {
     @FXML
     private void onOpenModelMenuItemClick() {
         modelManager.openModelFile(
-            menuBar.getScene().getWindow(),
-            this::onModelLoaded,
-            this::onModelLoadError
+                menuBar.getScene().getWindow(),
+                this::onModelLoaded,
+                this::onModelLoadError
         );
     }
 
@@ -42,43 +46,24 @@ public class MenuController {
     private void onSaveModelMenuItemClick() {
         Model currentModel = sceneManager.getModel();
         if (currentModel == null) {
-            showAlert("No model loaded", "Please open a model first.");
+            showCustomAlert("Нет модели", "Сначала откройте модель.");
             return;
         }
 
-        Alert alert = createSaveDialog();
-        Optional<ButtonType> result = alert.showAndWait();
+        Optional<String> choice = showSaveModelDialog();
+        if (choice.isEmpty()) return;
 
-        if (result.isEmpty() || result.get().getButtonData() == ButtonBar.ButtonData.CANCEL_CLOSE) {
-            return;
-        }
-
-        Model toSave = (result.get().getText().equals("Transformed"))
+        Model toSave = choice.get().equals("Преобразованная")
                 ? sceneManager.getTransformedModel()
                 : sceneManager.getModel();
 
         modelManager.saveModelFile(
-            menuBar.getScene().getWindow(),
-            toSave,
-            msg -> showAlert("Success", msg),
-            err -> showAlert("Error", err)
+                menuBar.getScene().getWindow(),
+                toSave,
+                msg -> showCustomAlert("Успех", msg),
+                err -> showCustomAlert("Ошибка", err)
         );
     }
-
-    @FXML
-    private void showTransformPanel() {
-        if (transformController != null) {
-            transformController.showPanel();
-        }
-    }
-
-    @FXML
-    private void hideTransformPanel() {
-        if (transformController != null) {
-            transformController.hidePanel();
-        }
-    }
-
 
     private void onModelLoaded(Model model) {
         sceneManager.setModel(model);
@@ -87,36 +72,62 @@ public class MenuController {
     }
 
     private void onModelLoadError(String errorMessage) {
-        showErrorDialog(errorMessage);
+        showCustomAlert("Ошибка", errorMessage);
     }
 
-    private Alert createSaveDialog() {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Save Model");
-        alert.setHeaderText("Choose which version to save");
-        alert.setContentText("Do you want to save the original model or the transformed one?");
+    private void showCustomAlert(String title, String message) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cgvsu/fxml/AlertDialog.fxml"));
+            Parent root = loader.load();
+            AlertDialogController controller = loader.getController();
 
-        ButtonType btnOriginal = new ButtonType("Original");
-        ButtonType btnTransformed = new ButtonType("Transformed");
-        ButtonType btnCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+            controller.setHeaderText(title);
+            controller.setContentText(message);
 
-        alert.getButtonTypes().setAll(btnOriginal, btnTransformed, btnCancel);
-        return alert;
+            controller.editButtons(false);
+
+            Stage stage = new Stage();
+            stage.setTitle(title);
+            stage.initOwner(menuBar.getScene().getWindow());
+            stage.initModality(Modality.WINDOW_MODAL);
+            stage.setScene(new Scene(root));
+            stage.getScene().getStylesheets().add(
+                    Objects.requireNonNull(getClass().getResource("/com/cgvsu/css/style.css")).toExternalForm()
+            );
+            stage.showAndWait();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
+    private Optional<String> showSaveModelDialog() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cgvsu/fxml/AlertDialog.fxml"));
+            Parent root = loader.load();
+            AlertDialogController controller = loader.getController();
 
-    private void showErrorDialog(String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+            controller.setHeaderText("Сохранение модели");
+            controller.setContentText("Хотите сохранить исходную модель или преобразованную?");
+
+            controller.editButtons(true);
+
+            Stage stage = new Stage();
+            stage.setTitle("Сохранение модели");
+            stage.initOwner(menuBar.getScene().getWindow());
+            stage.initModality(Modality.WINDOW_MODAL);
+            stage.setScene(new Scene(root));
+            stage.getScene().getStylesheets().add(
+                    Objects.requireNonNull(getClass().getResource("/com/cgvsu/css/style.css")).toExternalForm()
+            );
+
+            stage.showAndWait();
+
+            return Optional.ofNullable(controller.getResult());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Optional.empty();
+        }
     }
 }

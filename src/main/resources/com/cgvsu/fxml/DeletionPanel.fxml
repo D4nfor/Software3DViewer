@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox fx:id="deletionPanel" xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.cgvsu.controller.DeletionController"
+      spacing="10" alignment="TOP_CENTER"
+      styleClass="panel-dark">
+
+    <Label text="Удаление элементов" styleClass="label-title"/>
+    <Separator/>
+
+    <VBox spacing="5" styleClass="panel-light">
+        <Label text="Статистика модели:" styleClass="label-bold"/>
+        <HBox spacing="15">
+            <VBox spacing="2">
+                <Label text="Вершины:" styleClass="label-secondary"/>
+                <Label fx:id="verticesCountLabel" text="0" styleClass="text-accent"/>
+            </VBox>
+            <VBox spacing="2">
+                <Label text="Полигоны:" styleClass="label-secondary"/>
+                <Label fx:id="polygonsCountLabel" text="0" styleClass="text-accent"/>
+            </VBox>
+        </HBox>
+    </VBox>
+
+    <VBox spacing="8" styleClass="panel-medium">
+        <Label text="Удаление по индексам:" styleClass="label-bold"/>
+
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <RadioButton text="Вершины" styleClass="text-accent" fx:id="vertexRadioButton" selected="true"/>
+            <RadioButton text="Полигоны" styleClass="text-accent" fx:id="polygonRadioButton"/>
+        </HBox>
+
+        <VBox spacing="5">
+            <Label text="Индексы:" styleClass="label-bold"/>
+            <TextArea fx:id="indicesInput"
+                      promptText="Пример: 1,2,5 или 10-20 или 1,3-5,10"
+                      prefRowCount="3"/>
+        </VBox>
+
+        <HBox spacing="10" alignment="CENTER">
+            <Button fx:id="parseIndicesBtn" text="Выбрать" styleClass="button-secondary"
+                    onAction="#handleParseIndices" style="-fx-pref-width: 90;"/>
+            <Button fx:id="deleteIndicesBtn" text="Удалить" styleClass="button-danger"
+                    onAction="#handleDeleteIndices" style="-fx-pref-width: 90;"/>
+        </HBox>
+
+        <HBox spacing="10">
+            <Button fx:id="selectAllBtn" text="Выбрать все" styleClass="button-secondary"
+                    onAction="#handleSelectAll" style="-fx-pref-width: 110;"/>
+            <Button fx:id="selectNoneBtn" text="Сбросить" styleClass="button-secondary"
+                    onAction="#handleSelectNone" style="-fx-pref-width: 120;"/>
+        </HBox>
+
+        <VBox fx:id="indicesInfoBox" spacing="3" visible="false">
+            <Label text="Выбрано индексов:" styleClass="label-bold"/>
+            <Label fx:id="selectedIndicesLabel" text="" styleClass="label-secondary"/>
+            <Label fx:id="indicesCountLabel" text="" styleClass="label-secondary"/>
+        </VBox>
+    </VBox>
+
+    <VBox fx:id="statusContainer" spacing="5" styleClass="status-warning">
+        <Label text="Статус:" styleClass="label-bold"/>
+        <Label fx:id="statusLabel" styleClass="status-info" text="Готов к работе"/>
+    </VBox>
+</VBox>

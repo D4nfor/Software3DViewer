@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefWidth="300" xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.cgvsu.controller.ToolController"
+            styleClass="background-medium">
+
+    <VBox spacing="0" alignment="TOP_CENTER"
+          AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
+          AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+
+        <HBox spacing="0" styleClass="panel-dark">
+            <Button fx:id="transformButton" text="Изменение" onAction="#showTransformPanel"
+                    styleClass="button-primary"
+                    style="-fx-pref-width: 125; -fx-pref-height: 40;"/>
+            <Button fx:id="deleteButton" text="Удаление" onAction="#showDeletionPanel"
+                    styleClass="button-secondary"
+                    style="-fx-pref-width: 125; -fx-pref-height: 40;"/>
+        </HBox>
+
+        <StackPane fx:id="contentPane" VBox.vgrow="ALWAYS"/>
+    </VBox>
+</AnchorPane>

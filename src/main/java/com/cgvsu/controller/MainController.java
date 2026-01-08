@@ -9,13 +9,15 @@ import com.cgvsu.render_engine.rendering.RendererImpl;
 import com.cgvsu.render_engine.rendering.WireframeRenderer;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 
 import java.io.IOException;
 
 public class MainController {
     @FXML private BorderPane borderPane;
-    
+
     private final SceneManager sceneManager;
     private final AnimationManager animationManager;
     private final UIManager uiManager;
@@ -23,7 +25,7 @@ public class MainController {
     private final InputManagerImpl inputManager;
 
     private ViewportController viewportController;
-    private TransformController transformController;
+    private ToolController toolController;
     private MenuController menuController;
 
     private RendererImpl renderer;
@@ -49,24 +51,42 @@ public class MainController {
 
     private void setupChildControllers() throws IOException {
         ControllerFactory factory = new ControllerFactory(
-            sceneManager, animationManager, uiManager, modelManager, inputManager, this
+                sceneManager, animationManager, uiManager, modelManager, inputManager, this
         );
 
+        // Viewport
         FXMLLoader viewportLoader = new FXMLLoader(getClass().getResource("/com/cgvsu/fxml/ViewportPane.fxml"));
         viewportLoader.setControllerFactory(factory);
-        borderPane.setCenter(viewportLoader.load());
+        Parent viewportNode = viewportLoader.load();
+        borderPane.setCenter(viewportNode);
         this.viewportController = viewportLoader.getController();
 
-        FXMLLoader transformLoader = new FXMLLoader(getClass().getResource("/com/cgvsu/fxml/TransformPanel.fxml"));
-        transformLoader.setControllerFactory(factory);
-        borderPane.setRight(transformLoader.load());
-        this.transformController = transformLoader.getController();
+        // Tool Panel
+        FXMLLoader toolLoader = new FXMLLoader(getClass().getResource("/com/cgvsu/fxml/ToolPanel.fxml"));
+        toolLoader.setControllerFactory(factory);
+        Parent toolNode = toolLoader.load();
+        addStylesToNode(toolNode);
+        borderPane.setRight(toolNode);
+        this.toolController = toolLoader.getController();
 
+        // Menu
         FXMLLoader menuLoader = new FXMLLoader(getClass().getResource("/com/cgvsu/fxml/MenuBar.fxml"));
         menuLoader.setControllerFactory(factory);
-        borderPane.setTop(menuLoader.load());
+        Parent menuNode = menuLoader.load();
+        addStylesToNode(menuNode);
+        borderPane.setTop(menuNode);
         this.menuController = menuLoader.getController();
-        this.menuController.setTransformController(transformController);
+    }
+
+    private void addStylesToNode(Parent node) {
+        Scene scene = borderPane.getScene();
+        if (scene != null) {
+            for (String stylesheet : scene.getStylesheets()) {
+                if (!node.getStylesheets().contains(stylesheet)) {
+                    node.getStylesheets().add(stylesheet);
+                }
+            }
+        }
     }
 
     public void requestRender() {
@@ -74,10 +94,14 @@ public class MainController {
     }
 
     private void renderFrame() {
-        viewportController.renderFrame();
+        if (viewportController != null) {
+            viewportController.renderFrame();
+        }
     }
 
     public void cleanup() {
-        animationManager.stop();
+        if (animationManager != null) {
+            animationManager.stop();
+        }
     }
 }

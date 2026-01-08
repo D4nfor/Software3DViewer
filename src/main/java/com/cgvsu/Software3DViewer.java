@@ -1,33 +1,44 @@
 package com.cgvsu;
 
+import com.cgvsu.controller.MainController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Rectangle2D;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
+
+import java.util.Objects;
 
 public class Software3DViewer extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cgvsu/fxml/Main.fxml"));
-        BorderPane viewport = loader.load();
-        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-        Scene scene = new Scene(viewport);
+        Parent root = loader.load();
 
+        Scene scene = new Scene(root, 1200, 800);
+
+        String cssPath = "/com/cgvsu/css/style.css";
+        try {
+            String cssUrl = Objects.requireNonNull(getClass().getResource(cssPath)).toExternalForm();
+            scene.getStylesheets().add(cssUrl);
+            System.out.println("CSS loaded from: " + cssUrl);
+        } catch (NullPointerException e) {
+            System.err.println("CSS file not found at: " + cssPath);
+        }
+
+        stage.setTitle("3D Model Viewer");
+        stage.setScene(scene);
         stage.setMinWidth(800);
         stage.setMinHeight(600);
-        stage.setWidth(screenBounds.getWidth());
-        stage.setHeight(screenBounds.getHeight());
-
-        viewport.prefWidthProperty().bind(scene.widthProperty());
-        viewport.prefHeightProperty().bind(scene.heightProperty());
-
-        stage.setTitle("Software3DViewer");
-        stage.setScene(scene);
         stage.show();
+
+        MainController controller = loader.getController();
+        stage.setOnCloseRequest(event -> {
+            if (controller != null) {
+                controller.cleanup();
+            }
+        });
     }
 
     public static void main(String[] args) {

@@ -32,9 +32,9 @@ public class TransformController {
 
     private void setupUI() {
         uiManager.setupTransformSpinners(
-            translateXField, translateYField, translateZField,
-            rotateXField, rotateYField, rotateZField,
-            scaleXField, scaleYField, scaleZField
+                translateXField, translateYField, translateZField,
+                rotateXField, rotateYField, rotateZField,
+                scaleXField, scaleYField, scaleZField
         );
     }
 
@@ -70,9 +70,9 @@ public class TransformController {
         if (uiManager.isUpdatingFromModel()) return;
 
         Transform transform = uiManager.createTransformFromSpinners(
-            translateXField, translateYField, translateZField,
-            rotateXField, rotateYField, rotateZField,
-            scaleXField, scaleYField, scaleZField
+                translateXField, translateYField, translateZField,
+                rotateXField, rotateYField, rotateZField,
+                scaleXField, scaleYField, scaleZField
         );
 
         sceneManager.setTransform(transform);
@@ -80,10 +80,10 @@ public class TransformController {
 
     private void updateSpinnersFromTransform(Transform transform) {
         uiManager.updateSpinnersFromTransform(
-            transform,
-            translateXField, translateYField, translateZField,
-            rotateXField, rotateYField, rotateZField,
-            scaleXField, scaleYField, scaleZField
+                transform,
+                translateXField, translateYField, translateZField,
+                rotateXField, rotateYField, rotateZField,
+                scaleXField, scaleYField, scaleZField
         );
     }
 
@@ -96,5 +96,8 @@ public class TransformController {
     public void hidePanel() {
         transformPanel.setVisible(false);
         transformPanel.setManaged(false);
+    }
+    public VBox getPanel() {
+        return transformPanel;
     }
 }

@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.canvas.Canvas?>
-<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.AnchorPane?>
 
-<StackPane fx:id="canvasContainer" xmlns:fx="http://javafx.com/fxml"
-           fx:controller="com.cgvsu.controller.ViewportController"
-           style="-fx-border-color: red;">
-    <Canvas fx:id="canvas" width="700" height="700"/>
-</StackPane>
+<AnchorPane fx:id="canvasContainer" xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.cgvsu.controller.ViewportController"
+            styleClass="canvas-container">
+    <Canvas fx:id="canvas"
+            AnchorPane.topAnchor="0"
+            AnchorPane.bottomAnchor="0"
+            AnchorPane.leftAnchor="0"
+            AnchorPane.rightAnchor="0"/>
+</AnchorPane>

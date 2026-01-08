@@ -5,10 +5,10 @@ import com.cgvsu.manager.SceneManager;
 import com.cgvsu.manager.interfaces.InputManagerImpl;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.AnchorPane;
 
 public class ViewportController {
-    @FXML private StackPane canvasContainer;
+    @FXML private AnchorPane canvasContainer;
     @FXML private Canvas canvas;
 
     private final SceneManager sceneManager;
@@ -26,13 +26,25 @@ public class ViewportController {
 
     @FXML
     private void initialize() {
-        // setupCanvasBinding(); без ограничений расширяется
+        setupCanvasBinding();
         setupInputHandlers();
     }
 
     private void setupCanvasBinding() {
         canvas.widthProperty().bind(canvasContainer.widthProperty());
         canvas.heightProperty().bind(canvasContainer.heightProperty());
+
+        canvas.widthProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal.doubleValue() > 0) {
+                mainController.requestRender();
+            }
+        });
+
+        canvas.heightProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal.doubleValue() > 0) {
+                mainController.requestRender();
+            }
+        });
     }
 
     private void setupInputHandlers() {
@@ -41,8 +53,13 @@ public class ViewportController {
     }
 
     public void renderFrame() {
-        canvas.getGraphicsContext2D().clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-        sceneManager.render(canvas.getGraphicsContext2D(), canvas.getWidth(), canvas.getHeight());
+        double width = canvas.getWidth();
+        double height = canvas.getHeight();
+
+        if (width > 0 && height > 0) {
+            canvas.getGraphicsContext2D().clearRect(0, 0, width, height);
+            sceneManager.render(canvas.getGraphicsContext2D(), width, height);
+        }
     }
 
     public Canvas getCanvas() {

@@ -27,8 +27,8 @@ public class ControllerFactory implements javafx.util.Callback<Class<?>, Object>
     public Object call(Class<?> type) {
         if (type == ViewportController.class) {
             return new ViewportController(sceneManager, animationManager, inputManager, mainController);
-        } else if (type == TransformController.class) {
-            return new TransformController(sceneManager, uiManager);
+        } else if (type == ToolController.class) {
+            return new ToolController(sceneManager, uiManager);
         } else if (type == MenuController.class) {
             return new MenuController(modelManager, sceneManager, mainController);
         }

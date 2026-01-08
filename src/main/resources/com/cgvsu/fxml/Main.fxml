@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.layout.BorderPane?>
 
-<BorderPane fx:id="borderPane" xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.cgvsu.controller.MainController"/>
+<BorderPane fx:id="borderPane" xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.cgvsu.controller.MainController"
+            styleClass="main-container">
+</BorderPane>
