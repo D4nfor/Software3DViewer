@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox fx:id="modelsPanel"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.cgvsu.controller.ModelsController"
+      spacing="10"
+      alignment="TOP_CENTER"
+      styleClass="panel-dark">
+
+    <Label text="Модели" styleClass="label-title"/>
+    <Separator/>
+
+    <Label fx:id="activeModelLabel"
+           text="Активная модель:"
+           styleClass="label-secondary"/>
+
+    <ListView fx:id="modelsList"
+              prefHeight="220"
+              styleClass="background-light"/>
+
+    <Button text="Удалить модель"
+            onAction="#handleDeleteModel"
+            maxWidth="Infinity"
+            styleClass="button-danger"/>
+
+</VBox>

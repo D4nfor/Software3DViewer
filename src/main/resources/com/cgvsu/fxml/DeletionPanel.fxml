@@ -13,7 +13,7 @@
     <Separator/>
 
     <VBox spacing="5" styleClass="panel-light">
-        <Label text="Статистика модели:" styleClass="label-bold"/>
+        <Label text="Информация:" styleClass="label-bold"/>
         <HBox spacing="15">
             <VBox spacing="2">
                 <Label text="Вершины:" styleClass="label-secondary"/>

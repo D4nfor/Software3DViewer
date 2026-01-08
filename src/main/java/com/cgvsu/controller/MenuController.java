@@ -44,7 +44,7 @@ public class MenuController {
 
     @FXML
     private void onSaveModelMenuItemClick() {
-        Model currentModel = sceneManager.getModel();
+        Model currentModel = sceneManager.getActiveModel();
         if (currentModel == null) {
             showCustomAlert("Нет модели", "Сначала откройте модель.");
             return;
@@ -55,7 +55,7 @@ public class MenuController {
 
         Model toSave = choice.get().equals("Преобразованная")
                 ? sceneManager.getTransformedModel()
-                : sceneManager.getModel();
+                : sceneManager.getActiveModel();;
 
         modelManager.saveModelFile(
                 menuBar.getScene().getWindow(),
@@ -66,10 +66,11 @@ public class MenuController {
     }
 
     private void onModelLoaded(Model model) {
-        sceneManager.setModel(model);
-        sceneManager.resetTransform();
+        sceneManager.addModel(model);
+        sceneManager.setActiveModel(model);
         mainController.requestRender();
     }
+
 
     private void onModelLoadError(String errorMessage) {
         showCustomAlert("Ошибка", errorMessage);

@@ -2,7 +2,9 @@ package com.cgvsu.controller;
 
 import com.cgvsu.manager.SceneManager;
 import com.cgvsu.manager.UIManager;
+import com.cgvsu.model.Model;
 import com.cgvsu.render_engine.Transform;
+import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Spinner;
@@ -16,7 +18,7 @@ public class TransformController {
     @FXML private Button resetButton;
 
     private final SceneManager sceneManager;
-    private final UIManager uiManager;
+    private UIManager uiManager;
 
     public TransformController(SceneManager sceneManager, UIManager uiManager) {
         this.sceneManager = sceneManager;
@@ -39,6 +41,7 @@ public class TransformController {
     }
 
     private void setupListeners() {
+        // слушатели спиннеров
         setupSpinnerListener(translateXField);
         setupSpinnerListener(translateYField);
         setupSpinnerListener(translateZField);
@@ -49,12 +52,35 @@ public class TransformController {
         setupSpinnerListener(scaleYField);
         setupSpinnerListener(scaleZField);
 
-        sceneManager.transformProperty().addListener((obs, oldTransform, newTransform) -> {
-            if (!uiManager.isUpdatingFromModel()) {
-                updateSpinnersFromTransform(newTransform);
+        // слушаем смену активной модели
+        sceneManager.activeModelProperty().addListener((obs, oldModel, newModel) -> {
+            if (oldModel != null) {
+                oldModel.transformProperty().removeListener(transformListener);
+            }
+            if (newModel != null) {
+                newModel.transformProperty().addListener(transformListener);
+                updateSpinnersFromTransform(newModel.getTransform());
+                setSpinnersEditable(true);
+            } else {
+                setSpinnersEditable(false); // если модели нет — спиннеры заблокированы
             }
         });
+
+        Model activeModel = sceneManager.getActiveModel();
+        if (activeModel != null) {
+            activeModel.transformProperty().addListener(transformListener);
+            updateSpinnersFromTransform(activeModel.getTransform());
+            setSpinnersEditable(true);
+        } else {
+            setSpinnersEditable(false);
+        }
     }
+
+    private final ChangeListener<Transform> transformListener = (obs, oldTransform, newTransform) -> {
+        if (!uiManager.isUpdatingFromModel()) {
+            updateSpinnersFromTransform(newTransform);
+        }
+    };
 
     private void setupSpinnerListener(Spinner<Double> spinner) {
         spinner.valueProperty().addListener((obs, oldVal, newVal) -> handleTransformChange());
@@ -62,12 +88,18 @@ public class TransformController {
 
     @FXML
     private void handleResetTransform() {
-        sceneManager.resetTransform();
-        updateSpinnersFromTransform(sceneManager.getTransform());
+        Model activeModel = sceneManager.getActiveModel();
+        if (activeModel == null) return;
+
+        activeModel.setTransform(new Transform());
+        updateSpinnersFromTransform(activeModel.getTransform());
     }
 
     private void handleTransformChange() {
         if (uiManager.isUpdatingFromModel()) return;
+
+        Model activeModel = sceneManager.getActiveModel();
+        if (activeModel == null) return; // если модели нет — ничего не делаем
 
         Transform transform = uiManager.createTransformFromSpinners(
                 translateXField, translateYField, translateZField,
@@ -75,7 +107,7 @@ public class TransformController {
                 scaleXField, scaleYField, scaleZField
         );
 
-        sceneManager.setTransform(transform);
+        activeModel.setTransform(transform);
     }
 
     private void updateSpinnersFromTransform(Transform transform) {
@@ -87,16 +119,31 @@ public class TransformController {
         );
     }
 
+    // метод блокировки/разблокировки спиннеров
+    private void setSpinnersEditable(boolean editable) {
+        translateXField.setDisable(!editable);
+        translateYField.setDisable(!editable);
+        translateZField.setDisable(!editable);
+        rotateXField.setDisable(!editable);
+        rotateYField.setDisable(!editable);
+        rotateZField.setDisable(!editable);
+        scaleXField.setDisable(!editable);
+        scaleYField.setDisable(!editable);
+        scaleZField.setDisable(!editable);
+        resetButton.setDisable(!editable);
+    }
+
     public void showPanel() {
         transformPanel.setVisible(true);
         transformPanel.setManaged(true);
-        updateSpinnersFromTransform(sceneManager.getTransform());
+        // спиннеры будут заблокированы, если модели нет
     }
 
     public void hidePanel() {
         transformPanel.setVisible(false);
         transformPanel.setManaged(false);
     }
+
     public VBox getPanel() {
         return transformPanel;
     }

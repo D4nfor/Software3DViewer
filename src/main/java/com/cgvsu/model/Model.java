@@ -1,7 +1,10 @@
 package com.cgvsu.model;
 
+import com.cgvsu.render_engine.Transform;
 import com.cgvsu.utils.math.Vector2f;
 import com.cgvsu.utils.math.Vector3f;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 
 import java.util.*;
 
@@ -10,12 +13,34 @@ public class Model {
     private ArrayList<Vector2f> textureVertices;
     private ArrayList<Vector3f> normals;
     private ArrayList<Polygon> polygons;
+    private String name;
+    private final ObjectProperty<Transform> transform = new SimpleObjectProperty<>(new Transform());
+
+    public ObjectProperty<Transform> transformProperty() {
+        return transform;
+    }
+
+    public Transform getTransform() {
+        return transform.get();
+    }
+
+    public void setTransform(Transform transform) {
+        this.transform.set(transform != null ? transform : new Transform());
+    }
 
     public Model() {
         this.vertices = new ArrayList<>();
         this.textureVertices = new ArrayList<>();
         this.normals = new ArrayList<>();
         this.polygons = new ArrayList<>();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public ArrayList<Vector3f> getVertices() {return vertices;}

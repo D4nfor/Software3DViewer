@@ -47,7 +47,7 @@ public class DeletionController {
         setupListeners();
         hidePanel();
 
-        sceneManager.modelProperty().addListener((obs, oldModel, newModel) -> {
+        sceneManager.activeModelProperty().addListener((obs, oldModel, newModel) -> {
             setModel(newModel);
         });
     }

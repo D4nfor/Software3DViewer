@@ -1,55 +1,90 @@
 package com.cgvsu.manager;
 
-import com.cgvsu.utils.math.Vector3f;
 import com.cgvsu.model.Model;
 import com.cgvsu.render_engine.Camera;
-import com.cgvsu.render_engine.rendering.RendererImpl;
 import com.cgvsu.render_engine.Transform;
+import com.cgvsu.render_engine.rendering.RendererImpl;
+import com.cgvsu.utils.math.Vector3f;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.canvas.GraphicsContext;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SceneManager {
+
     private final Camera camera;
     private final RendererImpl renderer;
-    private final ObjectProperty<Model> model = new SimpleObjectProperty<>();
-    private final ObjectProperty<Transform> transform = new SimpleObjectProperty<>();
+
+    private final ObservableList<Model> models = FXCollections.observableArrayList();
+    private final ObjectProperty<Model> activeModel = new SimpleObjectProperty<>();
 
     public SceneManager(RendererImpl renderer, Camera camera) {
         this.renderer = renderer;
         this.camera = camera;
-        this.transform.set(new Transform());
     }
 
     public SceneManager(RendererImpl renderer) {
         this(renderer, new Camera(
-            new Vector3f(0, 0, 50),
-            new Vector3f(0, 0, 0),
-            1.0F, 1, 0.01F, 100
+                new Vector3f(0, 0, 50),
+                new Vector3f(0, 0, 0),
+                1.0F, 1, 0.01F, 100
         ));
     }
 
     public void render(GraphicsContext gc, double width, double height) {
-        renderer.render(gc, camera, model.get(), (int)width, (int)height, transform.get());
+        Model model = activeModel.get();
+        if (model != null) {
+            renderer.render(gc, camera, model, (int) width, (int) height, model.getTransform());
+        }
     }
 
-    public Camera getCamera() { return camera; }
-    public RendererImpl getRenderer() { return renderer; }
 
-    public Model getModel() { return model.get(); }
-    public void setModel(Model model) { this.model.set(model); }
-    public ObjectProperty<Model> modelProperty() { return model; }
+    public Camera getCamera() {
+        return camera;
+    }
 
-    public Transform getTransform() { return transform.get(); }
-    public void setTransform(Transform transform) { this.transform.set(transform); }
-    public ObjectProperty<Transform> transformProperty() { return transform; }
+    public RendererImpl getRenderer() {
+        return renderer;
+    }
 
-    public void resetTransform() {
-        transform.set(new Transform());
+    public ObservableList<Model> getModels() {
+        return models;
+    }
+
+    public void addModel(Model model) {
+        models.add(model);
+        if (activeModel.get() == null) {
+            setActiveModel(model);
+        }
+    }
+
+    public void removeModel(Model model) {
+        models.remove(model);
+        if (model == activeModel.get()) {
+            activeModel.set(models.isEmpty() ? null : models.get(0));
+        }
+    }
+
+    public Model getActiveModel() {
+        return activeModel.get();
+    }
+
+    public void setActiveModel(Model model) {
+        activeModel.set(model);
+    }
+
+    public ObjectProperty<Model> activeModelProperty() {
+        return activeModel;
     }
 
     public Model getTransformedModel() {
-        Model original = getModel();
-        return original != null ? renderer.applyTransform(original, getTransform()) : null;
+        Model model = getActiveModel();
+        return model != null
+                ? renderer.applyTransform(model, model.getTransform())
+                : null;
     }
 }

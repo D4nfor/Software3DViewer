@@ -15,9 +15,11 @@ public class ToolController {
     @FXML private StackPane contentPane;
     @FXML private Button transformButton;
     @FXML private Button deleteButton;
+    @FXML private Button modelsButton;
 
     private TransformController transformController;
     private DeletionController deletionController;
+    private ModelsController modelsController;
     private final SceneManager sceneManager;
     private final UIManager uiManager;
 
@@ -29,7 +31,7 @@ public class ToolController {
     @FXML
     private void initialize() {
         loadPanels();
-        showTransformPanel();
+        showModelsPanel();
     }
 
 
@@ -67,6 +69,23 @@ public class ToolController {
             deletionNode.setVisible(false);
             contentPane.getChildren().add(deletionNode);
 
+            FXMLLoader modelsLoader = new FXMLLoader(getClass().getResource("/com/cgvsu/fxml/ModelsPanel.fxml"));
+            modelsLoader.setControllerFactory(type -> {
+                if (type == ModelsController.class) {
+                    return new ModelsController(sceneManager, uiManager);
+                }
+                try {
+                    return type.getDeclaredConstructor().newInstance();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            Node modelsNode = modelsLoader.load();
+            this.modelsController = modelsLoader.getController();
+            modelsNode.setVisible(false);
+            contentPane.getChildren().add(modelsNode);
+
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -74,40 +93,51 @@ public class ToolController {
 
     @FXML
     private void showTransformPanel() {
-        if (transformController != null) {
-            transformController.showPanel();
-        }
-        if (deletionController != null) {
-            deletionController.hidePanel();
-        }
-        updateMenuButtonStyles(true, false);
+        if (transformController != null) transformController.showPanel();
+        if (deletionController != null) deletionController.hidePanel();
+        if (modelsController != null) modelsController.hidePanel();
+        updateMenuButtonStyles(true, false, false);
     }
 
     @FXML
     private void showDeletionPanel() {
-        if (transformController != null) {
-            transformController.hidePanel();
-        }
-        if (deletionController != null) {
-            deletionController.showPanel();
-        }
-        updateMenuButtonStyles(false, true);
+        if (transformController != null) transformController.hidePanel();
+        if (deletionController != null) deletionController.showPanel();
+        if (modelsController != null) modelsController.hidePanel();
+        updateMenuButtonStyles(false, true, false);
     }
 
-    private void updateMenuButtonStyles(boolean transformActive, boolean deleteActive) {
+    @FXML
+    private void showModelsPanel() {
+        if (transformController != null) transformController.hidePanel();
+        if (deletionController != null) deletionController.hidePanel();
+        if (modelsController != null) modelsController.showPanel();
+
+        updateMenuButtonStyles(false, false, true);
+    }
+
+
+    private void updateMenuButtonStyles(boolean transformActive, boolean deleteActive, boolean modelsActive) {
         if (transformButton != null && deleteButton != null) {
-            // Используем CSS классы вместо inline стилей
             transformButton.getStyleClass().remove("button-primary");
             transformButton.getStyleClass().remove("button-secondary");
             deleteButton.getStyleClass().remove("button-primary");
             deleteButton.getStyleClass().remove("button-secondary");
+            modelsButton.getStyleClass().remove("button-primary");
+            modelsButton.getStyleClass().remove("button-secondary");
 
             if (transformActive) {
                 transformButton.getStyleClass().add("button-primary");
                 deleteButton.getStyleClass().add("button-secondary");
-            } else {
+                modelsButton.getStyleClass().add("button-secondary");
+            } else if (deleteActive) {
                 transformButton.getStyleClass().add("button-secondary");
                 deleteButton.getStyleClass().add("button-primary");
+                modelsButton.getStyleClass().add("button-secondary");
+            } else {
+                transformButton.getStyleClass().add("button-secondary");
+                deleteButton.getStyleClass().add("button-secondary");
+                modelsButton.getStyleClass().add("button-primary");
             }
         }
     }

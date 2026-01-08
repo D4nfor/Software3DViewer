@@ -18,6 +18,9 @@
             <Button fx:id="deleteButton" text="Удаление" onAction="#showDeletionPanel"
                     styleClass="button-secondary"
                     style="-fx-pref-width: 125; -fx-pref-height: 40;"/>
+            <Button fx:id="modelsButton" text="Модели" onAction="#showModelsPanel"
+                    styleClass="button-secondary"
+                    style="-fx-pref-width: 125; -fx-pref-height: 40;"/>
         </HBox>
 
         <StackPane fx:id="contentPane" VBox.vgrow="ALWAYS"/>

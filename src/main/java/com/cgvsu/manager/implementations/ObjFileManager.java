@@ -44,6 +44,7 @@ public class ObjFileManager implements FileManagerImpl {
         try {
             String fileContent = Files.readString(file.toPath());
             Model model = ObjReader.read(fileContent);
+            model.setName(file.getName());
             onSuccess.onModelLoaded(model);
         } catch (IOException exception) {
             onError.onError("Failed to load model: " + exception.getMessage());

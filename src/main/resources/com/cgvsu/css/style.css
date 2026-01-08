@@ -59,12 +59,12 @@
     -fx-cursor: hand;
     -fx-border-width: 1;
     -fx-border-radius: 25;
+    -fx-font-weight: bold;
 }
 
 .button-primary {
     -fx-background-color: linear-gradient(to right, #667eea, #764ba2);
     -fx-text-fill: -fx-text-light;
-    -fx-font-weight: bold;
     -fx-font-size: 14px;
     -fx-effect: dropshadow(gaussian, rgba(100,126,234,0.4),10,0.3,0,2);
     -fx-border-color: rgba(255,255,255,0.2);
@@ -228,4 +228,77 @@
 .alert-button-danger:hover {
     -fx-background-color: linear-gradient(to right, #ff4b2b, #ff416c);
     -fx-effect: dropshadow(gaussian, rgba(255,65,108,0.6),7,0.3,0,1);
+}
+
+/* === LIST VIEW  === */
+
+.list-view {
+    -fx-background-color: transparent;
+    -fx-border-color: -fx-border-light;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-padding: 4;
+}
+
+.list-view .virtual-flow {
+    -fx-background-color: transparent;
+}
+
+.list-cell {
+    -fx-background-color: rgba(255,255,255,0.03);
+    -fx-text-fill: -fx-text-primary;
+    -fx-font-size: 13px;
+    -fx-padding: 8 12;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+}
+
+.list-cell:filled {
+    -fx-background-insets: 2;
+}
+
+.list-cell:filled:hover {
+    -fx-background-color: rgba(100,126,234,0.12);
+}
+
+.list-cell:filled:selected {
+    -fx-background-color: linear-gradient(to right, rgba(102,126,234,0.7), rgba(118,75,162,0.7));
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.list-cell:filled:selected:focused,
+.list-cell:filled:selected {
+    -fx-background-insets: 2;
+}
+
+.list-cell:empty {
+    -fx-background-color: transparent;
+}
+
+/* === SCROLLBAR === */
+
+.list-view .scroll-bar:vertical,
+.list-view .scroll-bar:horizontal {
+    -fx-background-color: transparent;
+}
+
+.list-view .thumb {
+    -fx-background-color: rgba(100,126,234,0.4);
+    -fx-background-radius: 10;
+}
+
+.list-view .thumb:hover {
+    -fx-background-color: rgba(100,126,234,0.7);
+}
+
+.list-view .increment-button,
+.list-view .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 4;
+}
+
+.list-view .increment-arrow,
+.list-view .decrement-arrow {
+    -fx-background-color: -fx-text-secondary;
 }

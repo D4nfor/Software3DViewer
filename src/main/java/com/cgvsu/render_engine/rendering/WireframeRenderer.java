@@ -16,10 +16,8 @@ import java.util.ArrayList;
 import static com.cgvsu.render_engine.GraphicConveyor.*;
 
 public final class WireframeRenderer implements RendererImpl {
-
-    // Цвета для рендера
     private static final Color WIREFRAME_COLOR = Color.web("#667eea");
-    private static final double WIREFRAME_LINE_WIDTH = 1;
+    private static final double WIREFRAME_LINE_WIDTH = 0.75;
 
     @Override
     public void render(GraphicsContext graphicsContext, Camera camera, Model model,

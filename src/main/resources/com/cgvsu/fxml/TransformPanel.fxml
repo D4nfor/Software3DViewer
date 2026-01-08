@@ -16,8 +16,11 @@
       alignment="TOP_CENTER"
       styleClass="panel-dark">
 
+    <Label text="Изменение модели" styleClass="label-title"/>
+    <Separator/>
+
     <VBox spacing="8">
-        <Label text="Position" styleClass="label-title"/>
+        <Label text="Позиция" styleClass="label-title"/>
 
         <GridPane hgap="12" vgap="10" alignment="CENTER">
 
@@ -40,7 +43,7 @@
     </VBox>
 
     <VBox spacing="8">
-        <Label text="Rotation (°)" styleClass="label-title"/>
+        <Label text="Вращение (°)" styleClass="label-title"/>
 
         <GridPane hgap="12" vgap="10" alignment="CENTER">
 
@@ -63,7 +66,7 @@
     </VBox>
 
     <VBox spacing="8">
-        <Label text="Scale" styleClass="label-title"/>
+        <Label text="Масштаб" styleClass="label-title"/>
 
         <GridPane hgap="12" vgap="10" alignment="CENTER">
 
@@ -85,10 +88,8 @@
         </GridPane>
     </VBox>
 
-    <Separator/>
-
     <Button fx:id="resetButton"
-            text="Reset"
+            text="Сброс"
             onAction="#handleResetTransform"
             styleClass="button-secondary"
             prefWidth="120"/>
