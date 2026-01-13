@@ -53,10 +53,14 @@ public class Model {
         this.textureVertices = textureVertices != null ? textureVertices : new ArrayList<>();
     }
 
-    public ArrayList<Vector3f> getNormals() {return normals;}
-    public void setNormals(ArrayList<Vector3f> normals) {
-        this.normals = normals != null ? normals : new ArrayList<>();
+    public List<Vector3f> getNormals() {
+        return normals;
     }
+
+    public void setNormals(List<Vector3f> normals) {
+        this.normals = normals != null ? new ArrayList<>(normals) : new ArrayList<>();
+    }
+
 
     public ArrayList<Polygon> getPolygons() {return polygons;}
     public void setPolygons(ArrayList<Polygon> polygons) {
@@ -296,4 +300,11 @@ public class Model {
 
         return unused;
     }
+
+    public void dropPolygonNormals() {
+        for (Polygon p : polygons) {
+            p.getNormalIndices().clear();
+        }
+    }
+
 }
