@@ -12,10 +12,14 @@
                 <KeyCodeCombination alt="UP" control="DOWN" meta="UP" shift="UP" shortcut="UP" code="O"/>
             </accelerator>
         </MenuItem>
+
+        <MenuItem text="Открыть текстуру..." onAction="#onOpenTextureMenuItemClick"/>
+
         <MenuItem text="Сохранить" onAction="#onSaveModelMenuItemClick">
             <accelerator>
                 <KeyCodeCombination alt="UP" control="DOWN" meta="UP" shift="UP" shortcut="UP" code="S"/>
             </accelerator>
         </MenuItem>
     </Menu>
+
 </MenuBar>

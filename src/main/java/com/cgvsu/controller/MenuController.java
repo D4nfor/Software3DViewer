@@ -10,6 +10,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.MenuBar;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.FileChooser;
+import javafx.scene.image.Image;
+import com.cgvsu.render_engine.TextureStorage;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -131,4 +134,20 @@ public class MenuController {
             return Optional.empty();
         }
     }
+
+    @FXML
+    private void onOpenTextureMenuItemClick() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg")
+        );
+
+        var file = fileChooser.showOpenDialog(menuBar.getScene().getWindow());
+        if (file != null) {
+            Image img = new Image(file.toURI().toString());
+            TextureStorage.setTexture(img);
+            mainController.requestRender();
+        }
+    }
+
 }
