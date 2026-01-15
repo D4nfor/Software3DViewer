@@ -6,7 +6,7 @@ import com.cgvsu.manager.implementations.ObjFileManager;
 import com.cgvsu.manager.interfaces.InputManagerImpl;
 import com.cgvsu.manager.interfaces.FileManagerImpl;
 import com.cgvsu.render_engine.rendering.RendererImpl;
-import com.cgvsu.render_engine.rendering.WireframeRenderer;
+import com.cgvsu.render_engine.rendering.Renderer;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -31,7 +31,7 @@ public class MainController {
     private RendererImpl renderer;
 
     public MainController() {
-        this.renderer = new WireframeRenderer();
+        this.renderer = new Renderer();
         this.sceneManager = new SceneManager(renderer);
         this.animationManager = new AnimationManager(this::renderFrame);
         this.uiManager = new UIManager();

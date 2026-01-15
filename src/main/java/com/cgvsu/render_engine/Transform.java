@@ -1,29 +1,50 @@
 package com.cgvsu.render_engine;
 
+import com.cgvsu.utils.math.Vector3f;
+
 public class Transform {
-    public float scaleX = 1.0f;
-    public float scaleY = 1.0f;
-    public float scaleZ = 1.0f;
-    public float rotateX = 0.0f;
-    public float rotateY = 0.0f;
-    public float rotateZ = 0.0f;
-    public float translateX = 0.0f;
-    public float translateY = 0.0f;
-    public float translateZ = 0.0f;
+    public float scaleX = 1, scaleY = 1, scaleZ = 1;
+    public float rotateX = 0, rotateY = 0, rotateZ = 0; // в градусах
+    public float translateX = 0, translateY = 0, translateZ = 0;
 
-    public Transform() {}
+    // Применяем вращение к вектору
+    public Vector3f rotate(Vector3f v) {
+        // Переводим градусы в радианы
+        double rx = Math.toRadians(rotateX);
+        double ry = Math.toRadians(rotateY);
+        double rz = Math.toRadians(rotateZ);
 
-    public Transform(float scaleX, float scaleY, float scaleZ,
-                     float rotateX, float rotateY, float rotateZ,
-                     float translateX, float translateY, float translateZ) {
-        this.scaleX = scaleX;
-        this.scaleY = scaleY;
-        this.scaleZ = scaleZ;
-        this.rotateX = rotateX;
-        this.rotateY = rotateY;
-        this.rotateZ = rotateZ;
-        this.translateX = translateX;
-        this.translateY = translateY;
-        this.translateZ = translateZ;
+        double x = v.getX();
+        double y = v.getY();
+        double z = v.getZ();
+
+        // Вращение вокруг X
+        double cosX = Math.cos(rx);
+        double sinX = Math.sin(rx);
+        double y1 = y * cosX - z * sinX;
+        double z1 = y * sinX + z * cosX;
+
+        y = y1;
+        z = z1;
+
+        // Вращение вокруг Y
+        double cosY = Math.cos(ry);
+        double sinY = Math.sin(ry);
+        double x1 = x * cosY + z * sinY;
+        double z2 = -x * sinY + z * cosY;
+
+        x = x1;
+        z = z2;
+
+        // Вращение вокруг Z
+        double cosZ = Math.cos(rz);
+        double sinZ = Math.sin(rz);
+        double x2 = x * cosZ - y * sinZ;
+        double y2 = x * sinZ + y * cosZ;
+
+        x = x2;
+        y = y2;
+
+        return new Vector3f((float)x, (float)y, (float)z);
     }
 }

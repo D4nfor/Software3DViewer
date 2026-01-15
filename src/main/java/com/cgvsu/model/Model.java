@@ -32,12 +32,39 @@ public class Model {
         this.transform.set(transform != null ? transform : new Transform());
     }
 
+    // Конструктор копирования — создаёт глубокую копию другой модели
+    public Model(Model other) {
+        this.vertices = new ArrayList<>();
+        for (Vector3f v : other.vertices) {
+            this.vertices.add(new Vector3f(v.getX(), v.getY(), v.getZ()));
+        }
+
+        this.textureVertices = new ArrayList<>();
+        for (Vector2f tv : other.textureVertices) {
+            this.textureVertices.add(new Vector2f(tv.getX(), tv.getY()));
+        }
+
+        this.normals = new ArrayList<>();
+        for (Vector3f n : other.normals) {
+            this.normals.add(new Vector3f(n.getX(), n.getY(), n.getZ()));
+        }
+
+        this.polygons = new ArrayList<>(other.polygons); // предполагаем, что Polygon можно копировать ссылкой
+        this.name = other.name;
+        this.transform.set(new Transform()); // создаём новый Transform
+        this.texture = other.texture;
+    }
+
+    // Пустой конструктор — создаёт "пустую" модель
     public Model() {
         this.vertices = new ArrayList<>();
         this.textureVertices = new ArrayList<>();
         this.normals = new ArrayList<>();
         this.polygons = new ArrayList<>();
+        this.transform.set(new Transform());
     }
+
+
 
     public String getName() {
         return name;
