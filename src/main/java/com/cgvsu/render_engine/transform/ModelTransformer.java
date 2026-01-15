@@ -1,7 +1,6 @@
-package com.cgvsu.render_engine.rendering;
+package com.cgvsu.render_engine.transform;
 
 import com.cgvsu.model.Model;
-import com.cgvsu.render_engine.Transform;
 import com.cgvsu.utils.math.Matrix4f;
 import com.cgvsu.utils.math.Vector3f;
 

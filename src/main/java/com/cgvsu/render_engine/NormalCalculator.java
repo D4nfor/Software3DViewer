@@ -1,4 +1,4 @@
-package com.cgvsu.utils.math.rendering;
+package com.cgvsu.render_engine;
 
 
 import com.cgvsu.model.Model;

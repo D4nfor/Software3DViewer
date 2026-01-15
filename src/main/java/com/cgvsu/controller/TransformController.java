@@ -3,7 +3,7 @@ package com.cgvsu.controller;
 import com.cgvsu.manager.SceneManager;
 import com.cgvsu.manager.UIManager;
 import com.cgvsu.model.Model;
-import com.cgvsu.render_engine.Transform;
+import com.cgvsu.render_engine.transform.Transform;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;

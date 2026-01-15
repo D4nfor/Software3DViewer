@@ -1,4 +1,4 @@
-package com.cgvsu.render_engine.rendering;
+package com.cgvsu.render_engine;
 
 public class ZBuffer {
     private final float[][] buffer;

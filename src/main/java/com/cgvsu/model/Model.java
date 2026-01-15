@@ -1,13 +1,12 @@
 package com.cgvsu.model;
 
-import com.cgvsu.render_engine.Transform;
+import com.cgvsu.render_engine.transform.Transform;
 import com.cgvsu.utils.math.Vector2f;
 import com.cgvsu.utils.math.Vector3f;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.image.Image;
 
-import java.awt.*;
 import java.util.*;
 import java.util.List;
 

@@ -2,7 +2,7 @@ package com.cgvsu.manager;
 
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
-import com.cgvsu.render_engine.Transform;
+import com.cgvsu.render_engine.transform.Transform;
 
 public class UIManager {
     private boolean updatingFromModel = false;

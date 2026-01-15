@@ -2,8 +2,8 @@ package com.cgvsu.manager.implementations;
 
 import com.cgvsu.manager.interfaces.FileManagerImpl;
 import com.cgvsu.model.Model;
-import com.cgvsu.utils.math.rendering.NormalCalculator;
-import com.cgvsu.utils.math.rendering.Triangulator;
+import com.cgvsu.render_engine.NormalCalculator;
+import com.cgvsu.render_engine.Triangulator;
 import com.cgvsu.utils.objtools.ObjReader;
 import com.cgvsu.utils.objtools.ObjWriter;
 import javafx.stage.FileChooser;

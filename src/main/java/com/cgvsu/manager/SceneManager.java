@@ -2,7 +2,6 @@ package com.cgvsu.manager;
 
 import com.cgvsu.model.Model;
 import com.cgvsu.render_engine.Camera;
-import com.cgvsu.render_engine.Transform;
 import com.cgvsu.render_engine.rendering.RendererImpl;
 import com.cgvsu.utils.math.Vector3f;
 import javafx.beans.property.ObjectProperty;
@@ -10,9 +9,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.canvas.GraphicsContext;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class SceneManager {
 
