@@ -135,11 +135,10 @@ public class GraphicConveyor {
             return new Vector3f(v4.getX(), v4.getY(), v4.getZ());
         }
 
-        // ⚠ perspective divide ТОЛЬКО для x и y
         return new Vector3f(
                 v4.getX() / w,
                 v4.getY() / w,
-                v4.getZ()      //  НЕ делим на w
+                v4.getZ() / w
         );
     }
 
