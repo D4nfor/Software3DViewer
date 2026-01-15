@@ -25,4 +25,6 @@ module com.cgvsu {
     opens com.cgvsu.manager.implementations to javafx.fxml;
     opens com.cgvsu.manager.interfaces to javafx.fxml;
     opens com.cgvsu.render_engine.rendering to javafx.fxml;
+    exports com.cgvsu.utils.math.rendering;
+    opens com.cgvsu.utils.math.rendering to javafx.fxml;
 }

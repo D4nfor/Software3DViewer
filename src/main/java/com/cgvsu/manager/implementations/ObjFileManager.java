@@ -2,7 +2,8 @@ package com.cgvsu.manager.implementations;
 
 import com.cgvsu.manager.interfaces.FileManagerImpl;
 import com.cgvsu.model.Model;
-import com.cgvsu.model.processing.ModelPreprocessor;
+import com.cgvsu.utils.math.rendering.NormalCalculator;
+import com.cgvsu.utils.math.rendering.Triangulator;
 import com.cgvsu.utils.objtools.ObjReader;
 import com.cgvsu.utils.objtools.ObjWriter;
 import javafx.stage.FileChooser;
@@ -44,10 +45,11 @@ public class ObjFileManager implements FileManagerImpl {
     private void loadModelFromFile(File file, ModelLoadCallback onSuccess, ModelErrorCallback onError) {
         try {
             String fileContent = Files.readString(file.toPath());
-            Model rawModel = ObjReader.read(fileContent);
-            Model preparedModel = ModelPreprocessor.prepare(rawModel);
-            preparedModel.setName(file.getName());
-            onSuccess.onModelLoaded(preparedModel);
+            Model model = ObjReader.read(fileContent);
+            Triangulator.triangulate(model);
+            NormalCalculator.calculateNormals(model);
+            model.setName(file.getName());
+            onSuccess.onModelLoaded(model);
         } catch (IOException exception) {
             onError.onError("Failed to load model: " + exception.getMessage());
         } catch (Exception exception) {

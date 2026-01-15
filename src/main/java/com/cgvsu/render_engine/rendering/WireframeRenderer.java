@@ -1,14 +1,13 @@
 package com.cgvsu.render_engine.rendering;
 
+import com.cgvsu.model.Model;
+import com.cgvsu.model.Polygon;
 import com.cgvsu.render_engine.Camera;
 import com.cgvsu.render_engine.GraphicConveyor;
 import com.cgvsu.render_engine.Transform;
 import com.cgvsu.render_engine.TextureStorage;
-import com.cgvsu.utils.math.Vector3f;
-import com.cgvsu.utils.math.Point2f;
-import com.cgvsu.utils.math.Matrix4f;
-import com.cgvsu.model.Model;
-import com.cgvsu.model.Polygon;
+import com.cgvsu.utils.math.*;
+
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
@@ -20,7 +19,6 @@ import static com.cgvsu.render_engine.GraphicConveyor.*;
 public final class WireframeRenderer implements RendererImpl {
 
     private static final Color FILL_COLOR = Color.LIGHTGRAY;
-    private static final double WIREFRAME_LINE_WIDTH = 0.75;
 
     @Override
     public void render(GraphicsContext gc, Camera camera, Model model,
@@ -34,9 +32,10 @@ public final class WireframeRenderer implements RendererImpl {
 
         float[][] zBuffer = createZBuffer(width, height);
 
-        setupGraphicsContext(gc);
         renderModel(gc, model, mvp, zBuffer, width, height);
     }
+
+    // =========================================================
 
     private float[][] createZBuffer(int width, int height) {
         float[][] buffer = new float[width][height];
@@ -51,42 +50,66 @@ public final class WireframeRenderer implements RendererImpl {
                              int width, int height) {
 
         for (Polygon polygon : model.getPolygons()) {
-            ArrayList<Vertex> projected =
+            ArrayList<Vertex> verts =
                     projectPolygon(model, polygon, mvp, width, height);
 
-            triangulateAndRasterize(projected, gc, zBuffer, width, height);
+            triangulateAndRasterize(verts, gc, zBuffer, width, height);
         }
     }
 
-    private ArrayList<Vertex> projectPolygon(Model model, Polygon polygon,
-                                             Matrix4f mvp, int width, int height) {
-        ArrayList<Vertex> projected = new ArrayList<>();
+    // =========================================================
+    // ПРОЕКЦИЯ (ВАЖНО: используем Vector4f и W)
+
+    private ArrayList<Vertex> projectPolygon(Model model,
+                                             Polygon polygon,
+                                             Matrix4f mvp,
+                                             int width, int height) {
+
+        ArrayList<Vertex> result = new ArrayList<>();
 
         for (int i = 0; i < polygon.getVertexIndices().size(); i++) {
             int vi = polygon.getVertexIndices().get(i);
-            int ti = polygon.getTextureVertexIndices().isEmpty()
-                    ? -1
-                    : polygon.getTextureVertexIndices().get(i);
-
             Vector3f v = model.getVertices().get(vi);
-            Vector3f clip = multiplyMatrix4ByVector3(mvp, v);
-            Point2f screen = vertexToPoint(clip, width, height);
+
+            Vector4f clip = multiplyMatrix4ByVector4(
+                    mvp,
+                    new Vector4f(v.getX(), v.getY(), v.getZ(), 1.0f)
+            );
+
+            if (clip.getW() == 0) continue;
+
+            float invW = 1.0f / clip.getW();
+
+            float ndcX = clip.getX() * invW;
+            float ndcY = clip.getY() * invW;
+            float ndcZ = clip.getZ() * invW;
+
+            float screenX = (ndcX + 1f) * 0.5f * width;
+            float screenY = (1f - ndcY) * 0.5f * height;
 
             float u = 0, vTex = 0;
-            if (ti >= 0 && ti < model.getTextureVertices().size()) {
-                u = model.getTextureVertices().get(ti).getX();
-                vTex = model.getTextureVertices().get(ti).getY();
+            if (!polygon.getTextureVertexIndices().isEmpty()) {
+                int ti = polygon.getTextureVertexIndices().get(i);
+                if (ti >= 0 && ti < model.getTextureVertices().size()) {
+                    u = model.getTextureVertices().get(ti).getX();
+                    vTex = model.getTextureVertices().get(ti).getY();
+                }
             }
 
-            projected.add(new Vertex(
-                    screen.getX(),
-                    screen.getY(),
-                    clip.getZ(),
-                    u, vTex
+            result.add(new Vertex(
+                    screenX,
+                    screenY,
+                    ndcZ,
+                    invW,
+                    u,
+                    vTex
             ));
         }
-        return projected;
+
+        return result;
     }
+
+    // =========================================================
 
     private void triangulateAndRasterize(ArrayList<Vertex> poly,
                                          GraphicsContext gc,
@@ -96,22 +119,21 @@ public final class WireframeRenderer implements RendererImpl {
         if (poly.size() < 3) return;
 
         for (int i = 1; i < poly.size() - 1; i++) {
-            rasterizeTriangle(poly.get(0), poly.get(i), poly.get(i + 1),
-                    gc, zBuffer, width, height);
+            rasterizeTriangle(
+                    poly.get(0),
+                    poly.get(i),
+                    poly.get(i + 1),
+                    gc, zBuffer, width, height
+            );
         }
     }
 
-    private void setupGraphicsContext(GraphicsContext gc) {
-        gc.setImageSmoothing(true);
-        gc.setStroke(FILL_COLOR);
-        gc.setLineWidth(WIREFRAME_LINE_WIDTH);
-        gc.setLineDashes(null);
-        gc.setLineCap(javafx.scene.shape.StrokeLineCap.ROUND);
-        gc.setLineJoin(javafx.scene.shape.StrokeLineJoin.ROUND);
-    }
+    // =========================================================
+    // РАСТЕРИЗАЦИЯ
 
     private void rasterizeTriangle(Vertex v0, Vertex v1, Vertex v2,
-                                   GraphicsContext gc, float[][] zBuffer,
+                                   GraphicsContext gc,
+                                   float[][] zBuffer,
                                    int width, int height) {
 
         int minX = (int) Math.max(0,
@@ -124,18 +146,21 @@ public final class WireframeRenderer implements RendererImpl {
                 Math.ceil(Math.max(v0.y, Math.max(v1.y, v2.y))));
 
         float area = edge(v0, v1, v2);
+        if (area == 0) return;
 
         Image tex = TextureStorage.getTexture();
 
         for (int y = minY; y <= maxY; y++) {
             for (int x = minX; x <= maxX; x++) {
-                Vertex p = new Vertex(x + 0.5f, y + 0.5f, 0, 0, 0);
+
+                Vertex p = new Vertex(x + 0.5f, y + 0.5f, 0, 0, 0, 0);
 
                 float w0 = edge(v1, v2, p);
                 float w1 = edge(v2, v0, p);
                 float w2 = edge(v0, v1, p);
 
                 if (w0 >= 0 && w1 >= 0 && w2 >= 0) {
+
                     w0 /= area;
                     w1 /= area;
                     w2 /= area;
@@ -146,14 +171,33 @@ public final class WireframeRenderer implements RendererImpl {
                         zBuffer[x][y] = z;
 
                         if (tex != null) {
-                            float u = w0 * v0.u + w1 * v1.u + w2 * v2.u;
-                            float v = w0 * v0.v + w1 * v1.v + w2 * v2.v;
+                            float invW =
+                                    w0 * v0.invW +
+                                            w1 * v1.invW +
+                                            w2 * v2.invW;
 
-                            int tx = (int) Math.clamp(u * (tex.getWidth() - 1), 0, tex.getWidth() - 1);
-                            int ty = (int) Math.clamp((1 - v) * (tex.getHeight() - 1), 0, tex.getHeight() - 1);
+                            float u =
+                                    (w0 * v0.u * v0.invW +
+                                            w1 * v1.u * v1.invW +
+                                            w2 * v2.u * v2.invW) / invW;
 
-                            Color color = tex.getPixelReader().getColor(tx, ty);
-                            gc.getPixelWriter().setColor(x, y, color);
+                            float v =
+                                    (w0 * v0.v * v0.invW +
+                                            w1 * v1.v * v1.invW +
+                                            w2 * v2.v * v2.invW) / invW;
+
+                            int tx = (int) Math.clamp(
+                                    u * (tex.getWidth() - 1),
+                                    0, tex.getWidth() - 1);
+
+                            int ty = (int) Math.clamp(
+                                    (1 - v) * (tex.getHeight() - 1),
+                                    0, tex.getHeight() - 1);
+
+                            gc.getPixelWriter().setColor(
+                                    x, y,
+                                    tex.getPixelReader().getColor(tx, ty)
+                            );
                         } else {
                             gc.getPixelWriter().setColor(x, y, FILL_COLOR);
                         }
@@ -168,47 +212,49 @@ public final class WireframeRenderer implements RendererImpl {
                 - (c.y - a.y) * (b.x - a.x);
     }
 
+    // =========================================================
+
     @Override
     public Model applyTransform(Model originalModel, Transform transform) {
-        if (originalModel == null || transform == null) {
-            return null;
-        }
+        if (originalModel == null || transform == null) return null;
 
         Matrix4f modelMatrix = createModelMatrix(transform);
-        Model transformedModel = new Model();
+        Model transformed = new Model();
 
-        ArrayList<Vector3f> newVertices = new ArrayList<>();
-        for (Vector3f vertex : originalModel.getVertices()) {
-            newVertices.add(multiplyMatrix4ByVector3(modelMatrix, vertex));
+        ArrayList<Vector3f> verts = new ArrayList<>();
+        for (Vector3f v : originalModel.getVertices()) {
+            verts.add(multiplyMatrix4ByVector3(modelMatrix, v));
         }
-        transformedModel.setVertices(newVertices);
 
-        transformedModel.setTextureVertices(
-                new ArrayList<>(originalModel.getTextureVertices()));
-        transformedModel.setNormals(
-                new ArrayList<>(originalModel.getNormals()));
-        transformedModel.setPolygons(
-                new ArrayList<>(originalModel.getPolygons()));
+        transformed.setVertices(verts);
+        transformed.setTextureVertices(new ArrayList<>(originalModel.getTextureVertices()));
+        transformed.setNormals(new ArrayList<>(originalModel.getNormals()));
+        transformed.setPolygons(new ArrayList<>(originalModel.getPolygons()));
 
-        return transformedModel;
+        return transformed;
     }
 
-    private Matrix4f createModelMatrix(Transform transform) {
+    private Matrix4f createModelMatrix(Transform t) {
         return GraphicConveyor.createModelMatrix(
-                transform.scaleX, transform.scaleY, transform.scaleZ,
-                transform.rotateX, transform.rotateY, transform.rotateZ,
-                transform.translateX, transform.translateY, transform.translateZ
+                t.scaleX, t.scaleY, t.scaleZ,
+                t.rotateX, t.rotateY, t.rotateZ,
+                t.translateX, t.translateY, t.translateZ
         );
     }
 
+    // =========================================================
+
     private static class Vertex {
-        float x, y, z;
+        float x, y;
+        float z;      // ndcZ
+        float invW;   // 1 / w
         float u, v;
 
-        Vertex(float x, float y, float z, float u, float v) {
+        Vertex(float x, float y, float z, float invW, float u, float v) {
             this.x = x;
             this.y = y;
             this.z = z;
+            this.invW = invW;
             this.u = u;
             this.v = v;
         }
