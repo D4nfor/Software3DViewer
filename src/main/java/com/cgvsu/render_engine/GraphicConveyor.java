@@ -75,9 +75,7 @@ public class GraphicConveyor {
 
         Matrix4f rotationMatrix = rotateZMatrix.multiply(rotateYMatrix).multiply(rotateXMatrix);
 
-        Matrix4f modelMatrix = translateMatrix.multiply(rotationMatrix).multiply(scaleMatrix);
-
-        return modelMatrix;
+        return translateMatrix.multiply(rotationMatrix).multiply(scaleMatrix);
     }
 
     public static Matrix4f lookAt(Vector3f eye, Vector3f target) {
@@ -91,7 +89,7 @@ public class GraphicConveyor {
             direction = new Vector3f(0, 0, -1);
         }
 
-        Vector3f z = direction.normalize();
+        Vector3f z = eye.subtract(target).normalize();
         Vector3f x = up.cross(z).normalize();
         Vector3f y = z.cross(x).normalize();
 
