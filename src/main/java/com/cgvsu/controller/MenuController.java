@@ -12,7 +12,6 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.FileChooser;
 import javafx.scene.image.Image;
-import com.cgvsu.render_engine.TextureStorage;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -69,10 +68,16 @@ public class MenuController {
     }
 
     private void onModelLoaded(Model model) {
+        // просто добавляем модель и делаем её активной
         sceneManager.addModel(model);
         sceneManager.setActiveModel(model);
+
+        // текстура теперь хранится в модели, глобальный TextureStorage не нужен
         mainController.requestRender();
     }
+
+
+
 
 
     private void onModelLoadError(String errorMessage) {
@@ -137,6 +142,12 @@ public class MenuController {
 
     @FXML
     private void onOpenTextureMenuItemClick() {
+        Model activeModel = sceneManager.getActiveModel();
+        if (activeModel == null) {
+            showCustomAlert("Нет модели", "Сначала откройте модель.");
+            return;
+        }
+
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().add(
                 new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg")
@@ -145,9 +156,10 @@ public class MenuController {
         var file = fileChooser.showOpenDialog(menuBar.getScene().getWindow());
         if (file != null) {
             Image img = new Image(file.toURI().toString());
-            TextureStorage.setTexture(img);
+            activeModel.setTexture(img); // теперь текстура привязана к модели
             mainController.requestRender();
         }
     }
+
 
 }

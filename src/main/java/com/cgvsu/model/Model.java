@@ -5,8 +5,11 @@ import com.cgvsu.utils.math.Vector2f;
 import com.cgvsu.utils.math.Vector3f;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.scene.image.Image;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 public class Model {
     private ArrayList<Vector3f> vertices;
@@ -15,6 +18,7 @@ public class Model {
     private ArrayList<Polygon> polygons;
     private String name;
     private final ObjectProperty<Transform> transform = new SimpleObjectProperty<>(new Transform());
+    private Image texture;
 
     public ObjectProperty<Transform> transformProperty() {
         return transform;
@@ -305,6 +309,14 @@ public class Model {
         for (Polygon p : polygons) {
             p.getNormalIndices().clear();
         }
+    }
+
+    public void setTexture(Image texture) {
+        this.texture = texture;
+    }
+
+    public Image getTexture() {
+        return texture;
     }
 
 }
