@@ -5,6 +5,7 @@ import com.cgvsu.utils.math.Vector3f;
 
 public class Camera {
 
+    private final String name;  // имя камеры
     private Vector3f position;
     private Vector3f target;
     private Vector3f up;
@@ -14,7 +15,8 @@ public class Camera {
     private float nearPlane;
     private float farPlane;
 
-    public Camera(Vector3f position, Vector3f target, float fov, float aspectRatio, float nearPlane, float farPlane) {
+    public Camera(String name, Vector3f position, Vector3f target, float fov, float aspectRatio, float nearPlane, float farPlane) {
+        this.name = name;
         this.position = position;
         this.target = target;
         this.up = new Vector3f(0, 1, 0);
@@ -22,6 +24,10 @@ public class Camera {
         this.aspectRatio = aspectRatio;
         this.nearPlane = nearPlane;
         this.farPlane = farPlane;
+    }
+
+    public String getName() {
+        return name;
     }
 
     // ------------------------
@@ -87,7 +93,7 @@ public class Camera {
     private void rotateAroundAxis(Vector3f axis, float angleRad) {
         Vector3f dir = target.subtract(position);
         Matrix4f rot = createRotationAroundAxis(axis, angleRad);
-        Vector3f rotated = rot.multiply(dir); // Vector3f = Matrix4f * Vector3f
+        Vector3f rotated = rot.multiply(dir);
         target = position.add(rotated);
     }
 

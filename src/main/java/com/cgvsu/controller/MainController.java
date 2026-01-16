@@ -39,7 +39,7 @@ public class MainController {
         this.animationManager = new AnimationManager(this::renderFrame);
         this.uiManager = new UIManager();
         this.modelManager = new ObjFileManager();
-        this.inputManager = new DefaultInputManager(sceneManager.getCamera());
+        this.inputManager = new DefaultInputManager(sceneManager.getActiveCamera());
     }
 
     public void showAlert(String title, String message) {

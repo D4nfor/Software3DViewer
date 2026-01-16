@@ -18,8 +18,7 @@
 
         <!-- Верхняя панель кнопок -->
         <HBox spacing="8"
-              styleClass="panel-dark"
-        >
+              styleClass="panel-dark">
             <padding>
                 <Insets top="10" right="10" bottom="10" left="10"/>
             </padding>
@@ -41,6 +40,13 @@
                     onAction="#showModelsPanel"
                     styleClass="button-secondary"
                     style="-fx-pref-width: 120; -fx-pref-height: 40;"/>
+        </HBox>
+
+        <!-- Панель управления камерами -->
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <ComboBox fx:id="cameraComboBox" prefWidth="200"/>
+            <Button fx:id="addCameraButton" text="Добавить камеру"/>
+            <Button fx:id="removeCameraButton" text="Удалить камеру"/>
         </HBox>
 
         <!-- Контейнер для сменяемых панелей -->

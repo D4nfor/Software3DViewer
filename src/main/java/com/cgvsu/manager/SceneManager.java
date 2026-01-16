@@ -13,28 +13,40 @@ import javafx.scene.canvas.GraphicsContext;
 
 public class SceneManager {
 
-    private final Camera camera;
+    // --- Камеры ---
+    private final ObservableList<Camera> cameras = FXCollections.observableArrayList();
+    private final ObjectProperty<Camera> activeCamera = new SimpleObjectProperty<>();
+
+    // --- Рендер и модели ---
     private final RendererImpl renderer;
     private final RenderSettings renderSettings = new RenderSettings();
     private final ObservableList<Model> models = FXCollections.observableArrayList();
     private final ObjectProperty<Model> activeModel = new SimpleObjectProperty<>();
 
-    public SceneManager(RendererImpl renderer, Camera camera) {
-        this.renderer = renderer;
-        this.camera = camera;
-    }
-
+    // ------------------------
+    // Конструкторы
+    // ------------------------
     public SceneManager(RendererImpl renderer) {
-        this(renderer, new Camera(
+        this.renderer = renderer;
+
+        // Создаём камеру по умолчанию
+        Camera defaultCam = new Camera(
+                "Default",
                 new Vector3f(0, 0, 100),
                 new Vector3f(0, 0, 0),
-                1.0F, 1, 0.01F, 100
-        ));
+                1.0f, 1f, 0.01f, 100f
+        );
+        addCamera(defaultCam);
+        setActiveCamera(defaultCam);
     }
 
+    // ------------------------
+    // Рендер
+    // ------------------------
     public void render(GraphicsContext gc, double width, double height) {
-        Model model = activeModel.get();
-        if (model != null) {
+        Camera camera = getActiveCamera();
+        Model model = getActiveModel();
+        if (camera != null && model != null) {
             renderer.render(
                     gc,
                     camera,
@@ -42,38 +54,36 @@ public class SceneManager {
                     (int) width,
                     (int) height,
                     model.getTransform(),
-                    renderSettings   // <-- ВАЖНО: передаём настройки
+                    renderSettings
             );
         }
     }
 
+    // ------------------------
+    // RenderSettings
+    // ------------------------
     public RenderSettings getRenderSettings() {
         return renderSettings;
     }
 
-    public Camera getCamera() {
-        return camera;
-    }
-
-    public RendererImpl getRenderer() {
-        return renderer;
-    }
-
+    // ------------------------
+    // Модели
+    // ------------------------
     public ObservableList<Model> getModels() {
         return models;
     }
 
     public void addModel(Model model) {
         models.add(model);
-        if (activeModel.get() == null) {
+        if (getActiveModel() == null) {
             setActiveModel(model);
         }
     }
 
     public void removeModel(Model model) {
         models.remove(model);
-        if (model == activeModel.get()) {
-            activeModel.set(models.isEmpty() ? null : models.get(0));
+        if (model == getActiveModel()) {
+            setActiveModel(models.isEmpty() ? null : models.get(0));
         }
     }
 
@@ -91,8 +101,50 @@ public class SceneManager {
 
     public Model getTransformedModel() {
         Model model = getActiveModel();
-        return model != null
-                ? renderer.applyTransform(model, model.getTransform())
-                : null;
+        return model != null ? renderer.applyTransform(model, model.getTransform()) : null;
+    }
+
+    // ------------------------
+    // Камеры
+    // ------------------------
+    public ObservableList<Camera> getCameras() {
+        return cameras;
+    }
+
+    public Camera getActiveCamera() {
+        return activeCamera.get();
+    }
+
+    public void setActiveCamera(Camera camera) {
+        if (cameras.contains(camera)) {
+            activeCamera.set(camera);
+        }
+    }
+
+    public ObjectProperty<Camera> activeCameraProperty() {
+        return activeCamera;
+    }
+
+    public void addCamera(Camera camera) {
+        if (!cameras.contains(camera)) {
+            cameras.add(camera);
+            if (getActiveCamera() == null) {
+                setActiveCamera(camera);
+            }
+        }
+    }
+
+    public void removeCamera(Camera camera) {
+        cameras.remove(camera);
+        if (camera == getActiveCamera()) {
+            setActiveCamera(cameras.isEmpty() ? null : cameras.get(0));
+        }
+    }
+
+    // ------------------------
+    // Геттер рендерера
+    // ------------------------
+    public RendererImpl getRenderer() {
+        return renderer;
     }
 }

@@ -2,13 +2,14 @@ package com.cgvsu.controller;
 
 import com.cgvsu.manager.*;
 import com.cgvsu.model.Model;
+import com.cgvsu.render_engine.Camera;
 import com.cgvsu.render_engine.rendering.RenderSettings;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ColorPicker;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -16,6 +17,7 @@ import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.UUID;
 
 public class ToolController {
 
@@ -27,6 +29,10 @@ public class ToolController {
     @FXML private CheckBox textureCheckBox;
     @FXML private CheckBox lightingCheckBox;
     @FXML private ColorPicker baseColorPicker;
+
+    @FXML private ComboBox<Camera> cameraComboBox;
+    @FXML private Button addCameraButton;
+    @FXML private Button removeCameraButton;
 
     private TransformController transformController;
     private DeletionController deletionController;
@@ -47,52 +53,91 @@ public class ToolController {
         loadPanels();
         showModelsPanel();
 
+        setupCameraControls();
+        setupRenderSettings();
+    }
+
+    /** Настройка галочек и ColorPicker */
+    private void setupRenderSettings() {
         RenderSettings settings = sceneManager.getRenderSettings();
 
-        // Галочка "Проводная модель"
         wireframeCheckBox.selectedProperty().addListener((obs, oldV, newV) -> {
             settings.setWireframe(newV);
             mainController.requestRender();
         });
 
-        // Галочка "Использовать текстуру"
         textureCheckBox.selectedProperty().addListener((obs, oldV, newV) -> {
             Model activeModel = sceneManager.getActiveModel();
-
-            if (newV) { // включаем текстуру
-                if (activeModel == null) {
+            if (newV) {
+                if (activeModel == null || activeModel.getTexture() == null) {
                     textureCheckBox.setSelected(false);
-                    mainController.showAlert("Нет модели", "Сначала откройте модель.");
+                    mainController.showAlert(
+                            activeModel == null ? "Нет модели" : "Нет текстуры",
+                            activeModel == null ? "Сначала откройте модель." :
+                                    "Сначала загрузите текстуру для модели."
+                    );
                     return;
                 }
-
-                if (activeModel.getTexture() == null) {
-                    textureCheckBox.setSelected(false);
-                    mainController.showAlert("Нет текстуры", "Сначала загрузите текстуру для модели.");
-                    return;
-                }
-
-                // Всё ок — включаем отображение текстуры
                 settings.setUseTexture(true);
             } else {
-                // Выключаем текстуру
                 settings.setUseTexture(false);
             }
-
+            settings.setBaseColor(baseColorPicker.getValue());
             mainController.requestRender();
         });
 
-        // Галочка "Освещение"
         lightingCheckBox.selectedProperty().addListener((obs, oldV, newV) -> {
-            settings.setUseLighting(newV); // только флаг освещения
+            settings.setUseLighting(newV);
+            settings.setBaseColor(baseColorPicker.getValue());
             mainController.requestRender();
         });
 
-        // Выбор базового цвета
         baseColorPicker.setValue(Color.GRAY);
         baseColorPicker.valueProperty().addListener((obs, oldV, newV) -> {
             settings.setBaseColor(newV);
             mainController.requestRender();
+        });
+    }
+
+    /** Настройка панели камер */
+    private void setupCameraControls() {
+        // Сначала загружаем существующие камеры
+        ObservableList<Camera> cameras = sceneManager.getCameras();
+        cameraComboBox.setItems(cameras);
+
+        // Выбираем активную камеру
+        cameraComboBox.setValue(sceneManager.getActiveCamera());
+
+        // При смене выбора
+        cameraComboBox.valueProperty().addListener((obs, oldCam, newCam) -> {
+            if (newCam != null) {
+                sceneManager.setActiveCamera(newCam);
+                mainController.requestRender();
+            }
+        });
+
+        // Кнопка добавления камеры
+        addCameraButton.setOnAction(e -> {
+            Camera newCam = new Camera(
+                    "Cam-" + UUID.randomUUID().toString().substring(0, 4),
+                    new com.cgvsu.utils.math.Vector3f(0, 0, 100),
+                    new com.cgvsu.utils.math.Vector3f(0, 0, 0),
+                    1.0f, 1f, 0.01f, 100f
+            );
+            sceneManager.addCamera(newCam);
+            cameraComboBox.setValue(newCam); // автоматически выбрать новую камеру
+            mainController.requestRender();
+        });
+
+        // Кнопка удаления камеры
+        removeCameraButton.setOnAction(e -> {
+            Camera cam = cameraComboBox.getValue();
+            if (cam != null) {
+                sceneManager.removeCamera(cam);
+                Camera firstCam = sceneManager.getCameras().isEmpty() ? null : sceneManager.getCameras().get(0);
+                cameraComboBox.setValue(firstCam);
+                mainController.requestRender();
+            }
         });
     }
 
@@ -116,12 +161,13 @@ public class ToolController {
                 activeModel.setTexture(img);
                 mainController.showAlert("Текстура загружена",
                         "Текстура успешно загружена. Включите галочку 'Использовать текстуру', чтобы отобразить её.");
-            } catch (Exception e) {
-                mainController.showAlert("Ошибка загрузки", "Не удалось загрузить текстуру: " + e.getMessage());
+            } catch (Exception ex) {
+                mainController.showAlert("Ошибка загрузки", "Не удалось загрузить текстуру: " + ex.getMessage());
             }
         }
     }
 
+    /** Загрузка сменяемых панелей (Transform, Deletion, Models) */
     private void loadPanels() {
         try {
             // Transform Panel
@@ -165,24 +211,21 @@ public class ToolController {
         }
     }
 
-    @FXML
-    private void showTransformPanel() {
+    @FXML private void showTransformPanel() {
         transformController.showPanel();
         deletionController.hidePanel();
         modelsController.hidePanel();
         updateMenuButtonStyles(true, false, false);
     }
 
-    @FXML
-    private void showDeletionPanel() {
+    @FXML private void showDeletionPanel() {
         transformController.hidePanel();
         deletionController.showPanel();
         modelsController.hidePanel();
         updateMenuButtonStyles(false, true, false);
     }
 
-    @FXML
-    private void showModelsPanel() {
+    @FXML private void showModelsPanel() {
         transformController.hidePanel();
         deletionController.hidePanel();
         modelsController.showPanel();
