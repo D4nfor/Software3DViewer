@@ -18,7 +18,8 @@
 
         <!-- Верхняя панель кнопок -->
         <HBox spacing="8"
-              styleClass="panel-dark">
+              styleClass="panel-dark"
+        >
             <padding>
                 <Insets top="10" right="10" bottom="10" left="10"/>
             </padding>
@@ -42,34 +43,43 @@
                     style="-fx-pref-width: 120; -fx-pref-height: 40;"/>
         </HBox>
 
-        <!-- Панель режимов рендера -->
+        <!-- Контейнер для сменяемых панелей -->
+        <StackPane fx:id="contentPane"
+                   VBox.vgrow="ALWAYS"
+                   styleClass="panel-content"/>
+
+        <!-- Панель режимов рендера (внизу) -->
         <VBox spacing="8"
-              styleClass="panel-light">
+              alignment="BOTTOM_LEFT"
+              styleClass="panel-light"
+              AnchorPane.bottomAnchor="0"
+              AnchorPane.rightAnchor="0"
+              style="-fx-background-color: rgba(0,0,50,0.7);">
+
             <padding>
                 <Insets top="10" right="10" bottom="10" left="10"/>
             </padding>
 
             <Label text="Режимы отображения"
-                   style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+                   style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: lightgray;"/>
 
             <CheckBox fx:id="wireframeCheckBox"
-                      text="Рисовать полигональную сетку"/>
+                      text="Рисовать полигональную сетку"
+                      style="-fx-text-fill: lightgray;"/>
 
             <CheckBox fx:id="textureCheckBox"
-                      text="Использовать текстуру"/>
+                      text="Использовать текстуру"
+                      style="-fx-text-fill: lightgray;"/>
 
             <CheckBox fx:id="lightingCheckBox"
-                      text="Использовать освещение"/>
+                      text="Использовать освещение"
+                      style="-fx-text-fill: lightgray;"/>
 
             <HBox spacing="8" alignment="CENTER_LEFT">
-                <Label text="Базовый цвет:"/>
+                <Label text="Базовый цвет:" style="-fx-text-fill: lightgray;"/>
                 <ColorPicker fx:id="baseColorPicker"/>
             </HBox>
-        </VBox>
 
-        <!-- Контейнер для сменяемых панелей -->
-        <StackPane fx:id="contentPane"
-                   VBox.vgrow="ALWAYS"
-                   styleClass="panel-content"/>
+        </VBox>
     </VBox>
 </AnchorPane>
