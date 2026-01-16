@@ -6,6 +6,16 @@ import com.cgvsu.render_engine.transform.Transform;
 import javafx.scene.canvas.GraphicsContext;
 
 public interface RendererImpl {
-    void render(GraphicsContext gc, Camera camera, Model model, int width, int height, Transform transform);
+
+    void render(
+            GraphicsContext gc,
+            Camera camera,
+            Model model,
+            int width,
+            int height,
+            Transform transform,
+            RenderSettings settings
+    );
+
     Model applyTransform(Model model, Transform transform);
 }

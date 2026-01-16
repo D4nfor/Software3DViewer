@@ -2,6 +2,7 @@ package com.cgvsu.manager;
 
 import com.cgvsu.model.Model;
 import com.cgvsu.render_engine.Camera;
+import com.cgvsu.render_engine.rendering.RenderSettings;
 import com.cgvsu.render_engine.rendering.RendererImpl;
 import com.cgvsu.utils.math.Vector3f;
 import javafx.beans.property.ObjectProperty;
@@ -14,7 +15,7 @@ public class SceneManager {
 
     private final Camera camera;
     private final RendererImpl renderer;
-
+    private final RenderSettings renderSettings = new RenderSettings();
     private final ObservableList<Model> models = FXCollections.observableArrayList();
     private final ObjectProperty<Model> activeModel = new SimpleObjectProperty<>();
 
@@ -34,10 +35,21 @@ public class SceneManager {
     public void render(GraphicsContext gc, double width, double height) {
         Model model = activeModel.get();
         if (model != null) {
-            renderer.render(gc, camera, model, (int) width, (int) height, model.getTransform());
+            renderer.render(
+                    gc,
+                    camera,
+                    model,
+                    (int) width,
+                    (int) height,
+                    model.getTransform(),
+                    renderSettings   // <-- ВАЖНО: передаём настройки
+            );
         }
     }
 
+    public RenderSettings getRenderSettings() {
+        return renderSettings;
+    }
 
     public Camera getCamera() {
         return camera;
