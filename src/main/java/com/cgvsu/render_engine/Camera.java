@@ -167,4 +167,44 @@ public class Camera {
         };
         return new Matrix4f(data);
     }
+
+    // ------------------------
+// Геттеры параметров проекции
+// ------------------------
+    public float getFov() {
+        return fov;
+    }
+
+    public float getAspectRatio() {
+        return aspectRatio;
+    }
+
+    public float getNearPlane() {
+        return nearPlane;
+    }
+
+    public float getFarPlane() {
+        return farPlane;
+    }
+
+    // ------------------------
+// Сеттеры для проекции (если нужно менять)
+// ------------------------
+    public void setFov(float fov) {
+        this.fov = fov;
+    }
+
+    public void setNearPlane(float nearPlane) {
+        this.nearPlane = nearPlane;
+    }
+
+    public void setFarPlane(float farPlane) {
+        this.farPlane = farPlane;
+    }
+
+    @Override
+    public String toString() {
+        return name; // будет показывать "Камера 1", "Камера 2" и т.д.
+    }
+
 }

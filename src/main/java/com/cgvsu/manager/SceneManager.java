@@ -16,6 +16,7 @@ public class SceneManager {
     // --- Камеры ---
     private final ObservableList<Camera> cameras = FXCollections.observableArrayList();
     private final ObjectProperty<Camera> activeCamera = new SimpleObjectProperty<>();
+    private int cameraCounter = 1; // счётчик камер
 
     // --- Рендер и модели ---
     private final RendererImpl renderer;
@@ -31,13 +32,14 @@ public class SceneManager {
 
         // Создаём камеру по умолчанию
         Camera defaultCam = new Camera(
-                "Default",
+                "Камера " + cameraCounter++,
                 new Vector3f(0, 0, 100),
                 new Vector3f(0, 0, 0),
                 1.0f, 1f, 0.01f, 100f
         );
         addCamera(defaultCam);
         setActiveCamera(defaultCam);
+
     }
 
     // ------------------------
@@ -127,12 +129,25 @@ public class SceneManager {
 
     public void addCamera(Camera camera) {
         if (!cameras.contains(camera)) {
+            // Если имя пустое, создаём стандартное имя
+            if (camera.getName() == null || camera.getName().isEmpty()) {
+                camera = new Camera(
+                        "Камера " + cameraCounter++,
+                        camera.getPosition(),
+                        camera.getTarget(),
+                        camera.getFov(),
+                        camera.getAspectRatio(),
+                        camera.getNearPlane(),
+                        camera.getFarPlane()
+                );
+            }
             cameras.add(camera);
             if (getActiveCamera() == null) {
                 setActiveCamera(camera);
             }
         }
     }
+
 
     public void removeCamera(Camera camera) {
         cameras.remove(camera);

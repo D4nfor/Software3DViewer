@@ -119,15 +119,19 @@ public class ToolController {
         // Кнопка добавления камеры
         addCameraButton.setOnAction(e -> {
             Camera newCam = new Camera(
-                    "Cam-" + UUID.randomUUID().toString().substring(0, 4),
+                    "", // имя оставляем пустым, SceneManager сгенерирует
                     new com.cgvsu.utils.math.Vector3f(0, 0, 100),
                     new com.cgvsu.utils.math.Vector3f(0, 0, 0),
-                    1.0f, 1f, 0.01f, 100f
+                    1.0f,
+                    1f,
+                    0.01f,
+                    100f
             );
             sceneManager.addCamera(newCam);
-            cameraComboBox.setValue(newCam); // автоматически выбрать новую камеру
+            cameraComboBox.setValue(sceneManager.getActiveCamera()); // сразу выбрать
             mainController.requestRender();
         });
+
 
         // Кнопка удаления камеры
         removeCameraButton.setOnAction(e -> {
