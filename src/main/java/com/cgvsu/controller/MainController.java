@@ -12,8 +12,11 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class MainController {
     @FXML private BorderPane borderPane;
@@ -38,6 +41,30 @@ public class MainController {
         this.modelManager = new ObjFileManager();
         this.inputManager = new DefaultInputManager(sceneManager.getCamera());
     }
+
+    public void showAlert(String title, String message) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cgvsu/fxml/AlertDialog.fxml"));
+            Parent root = loader.load();
+            AlertDialogController controller = loader.getController();
+            controller.setHeaderText(title);
+            controller.setContentText(message);
+            controller.editButtons(false);
+
+            Stage stage = new Stage();
+            stage.setTitle(title);
+            stage.initOwner(borderPane.getScene().getWindow());
+            stage.initModality(Modality.WINDOW_MODAL);
+            stage.setScene(new Scene(root));
+            stage.getScene().getStylesheets().add(
+                    Objects.requireNonNull(getClass().getResource("/com/cgvsu/css/style.css")).toExternalForm()
+            );
+            stage.showAndWait();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
     @FXML
     private void initialize() {

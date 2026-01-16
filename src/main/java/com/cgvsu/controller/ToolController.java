@@ -1,7 +1,7 @@
 package com.cgvsu.controller;
 
-import com.cgvsu.manager.SceneManager;
-import com.cgvsu.manager.UIManager;
+import com.cgvsu.manager.*;
+import com.cgvsu.model.Model;
 import com.cgvsu.render_engine.rendering.RenderSettings;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -9,9 +9,12 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ColorPicker;
+import javafx.scene.image.Image;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
 
+import java.io.File;
 import java.io.IOException;
 
 public class ToolController {
@@ -44,29 +47,79 @@ public class ToolController {
         loadPanels();
         showModelsPanel();
 
-        // Привязываем галочки и ColorPicker к RenderSettings
         RenderSettings settings = sceneManager.getRenderSettings();
 
+        // Галочка "Проводная модель"
         wireframeCheckBox.selectedProperty().addListener((obs, oldV, newV) -> {
             settings.setWireframe(newV);
             mainController.requestRender();
         });
 
+        // Галочка "Использовать текстуру"
         textureCheckBox.selectedProperty().addListener((obs, oldV, newV) -> {
-            settings.setUseTexture(newV);
+            Model activeModel = sceneManager.getActiveModel();
+
+            if (newV) { // включаем текстуру
+                if (activeModel == null) {
+                    textureCheckBox.setSelected(false);
+                    mainController.showAlert("Нет модели", "Сначала откройте модель.");
+                    return;
+                }
+
+                if (activeModel.getTexture() == null) {
+                    textureCheckBox.setSelected(false);
+                    mainController.showAlert("Нет текстуры", "Сначала загрузите текстуру для модели.");
+                    return;
+                }
+
+                // Всё ок — включаем отображение текстуры
+                settings.setUseTexture(true);
+            } else {
+                // Выключаем текстуру
+                settings.setUseTexture(false);
+            }
+
             mainController.requestRender();
         });
 
+        // Галочка "Освещение"
         lightingCheckBox.selectedProperty().addListener((obs, oldV, newV) -> {
-            settings.setUseLighting(newV);
+            settings.setUseLighting(newV); // только флаг освещения
             mainController.requestRender();
         });
 
+        // Выбор базового цвета
         baseColorPicker.setValue(Color.GRAY);
         baseColorPicker.valueProperty().addListener((obs, oldV, newV) -> {
             settings.setBaseColor(newV);
             mainController.requestRender();
         });
+    }
+
+    /** Загрузка текстуры через диалог выбора файла */
+    @FXML
+    private void loadTexture() {
+        Model activeModel = sceneManager.getActiveModel();
+        if (activeModel == null) {
+            mainController.showAlert("Нет модели", "Сначала откройте модель.");
+            return;
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg")
+        );
+        File file = fileChooser.showOpenDialog(baseColorPicker.getScene().getWindow());
+        if (file != null) {
+            try {
+                Image img = new Image(file.toURI().toString());
+                activeModel.setTexture(img);
+                mainController.showAlert("Текстура загружена",
+                        "Текстура успешно загружена. Включите галочку 'Использовать текстуру', чтобы отобразить её.");
+            } catch (Exception e) {
+                mainController.showAlert("Ошибка загрузки", "Не удалось загрузить текстуру: " + e.getMessage());
+            }
+        }
     }
 
     private void loadPanels() {

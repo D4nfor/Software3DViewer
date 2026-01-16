@@ -7,6 +7,10 @@ public class RenderSettings {
     private boolean useTexture = false;
     private boolean useLighting = false;
     private Color baseColor = Color.GRAY;
+    private boolean textureLoaded = false; // текстура загружена
+
+    public boolean isTextureLoaded() { return textureLoaded; }
+    public void setTextureLoaded(boolean loaded) { this.textureLoaded = loaded; }
 
     // wireframe
     public boolean isWireframe() {
