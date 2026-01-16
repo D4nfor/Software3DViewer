@@ -12,9 +12,11 @@ public class DefaultInputManager implements InputManagerImpl {
     private final Camera camera;
     private boolean middleMousePressed = false;
     private double lastMouseX, lastMouseY;
-    private float mouseSensitivity = 0.2f;
-    private float moveSpeed = 0.5f;
-    
+
+    private float rotateSensitivity = 0.005f;  // для вращений и орбиты
+    private float moveMouseSensitivity = 0.05f; // для сдвига мышью (Shift)
+    private float moveSpeed = 0.5f;           // WASD, Space, Shift
+
     private Runnable onOpenModel;
     private Runnable onSaveModel;
     private Runnable onShowTransformPanel;
@@ -29,10 +31,7 @@ public class DefaultInputManager implements InputManagerImpl {
     public void setupKeyboardHandlers(Node targetNode, Runnable onRenderRequest) {
         this.onRenderRequest = onRenderRequest;
         targetNode.setFocusTraversable(true);
-        
-        targetNode.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
-            handleKeyPressed(event);
-        });
+        targetNode.addEventFilter(KeyEvent.KEY_PRESSED, this::handleKeyPressed);
     }
 
     @Override
@@ -44,8 +43,8 @@ public class DefaultInputManager implements InputManagerImpl {
     }
 
     @Override
-    public void setHotkeyHandlers(Runnable onOpenModel, Runnable onSaveModel, 
-                                 Runnable onShowTransformPanel, Runnable onHideTransformPanel) {
+    public void setHotkeyHandlers(Runnable onOpenModel, Runnable onSaveModel,
+                                  Runnable onShowTransformPanel, Runnable onHideTransformPanel) {
         this.onOpenModel = onOpenModel;
         this.onSaveModel = onSaveModel;
         this.onShowTransformPanel = onShowTransformPanel;
@@ -54,7 +53,7 @@ public class DefaultInputManager implements InputManagerImpl {
 
     private void handleKeyPressed(KeyEvent event) {
         boolean cameraMoved = false;
-        
+
         if (event.isControlDown()) {
             switch (event.getCode()) {
                 case O -> { if (onOpenModel != null) { onOpenModel.run(); event.consume(); return; } }
@@ -80,7 +79,8 @@ public class DefaultInputManager implements InputManagerImpl {
     }
 
     private void resetCamera() {
-        camera.reset(new Vector3f(0, 0, 50), new Vector3f(0, 0, 0));
+        camera.setPosition(new Vector3f(0, 0, 50));
+        camera.setTarget(new Vector3f(0, 0, 0));
     }
 
     private void handleMousePressed(MouseEvent event) {
@@ -106,14 +106,17 @@ public class DefaultInputManager implements InputManagerImpl {
         double deltaY = event.getSceneY() - lastMouseY;
 
         if (event.isShiftDown()) {
-            camera.moveRight((float) (-deltaX * mouseSensitivity * 0.05f));
-            camera.moveUp((float) (deltaY * mouseSensitivity * 0.05f));
+            // Перемещение камеры в плоскости при зажатом Shift
+            camera.moveRight((float) (-deltaX * moveMouseSensitivity));
+            camera.moveUp((float) (deltaY * moveMouseSensitivity));
         } else if (event.isControlDown()) {
-            camera.rotateHorizontal((float) (-deltaX * mouseSensitivity));
-            camera.rotateVertical((float) (-deltaY * mouseSensitivity));
+            // Свободное вращение камеры
+            camera.rotateHorizontal((float) (-deltaX * rotateSensitivity));
+            camera.rotateVertical((float) (-deltaY * rotateSensitivity));
         } else {
-            camera.orbitHorizontal((float) (-deltaX * mouseSensitivity));
-            camera.orbitVertical((float) (-deltaY * mouseSensitivity));
+            // Орбита вокруг target
+            camera.orbitHorizontal((float) (-deltaX * rotateSensitivity));
+            camera.orbitVertical((float) (-deltaY * rotateSensitivity));
         }
 
         lastMouseX = event.getSceneX();
@@ -131,12 +134,12 @@ public class DefaultInputManager implements InputManagerImpl {
     }
 
     @Override
-    public void setMouseSensitivity(float sensitivity) { 
-        this.mouseSensitivity = sensitivity; 
+    public void setMouseSensitivity(float sensitivity) {
+        this.rotateSensitivity = sensitivity;
     }
-    
+
     @Override
-    public void setMoveSpeed(float speed) { 
-        this.moveSpeed = speed; 
+    public void setMoveSpeed(float speed) {
+        this.moveSpeed = speed;
     }
 }
