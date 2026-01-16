@@ -25,7 +25,7 @@ public class SceneManager {
 
     public SceneManager(RendererImpl renderer) {
         this(renderer, new Camera(
-                new Vector3f(0, 0, 50),
+                new Vector3f(0, 0, 100),
                 new Vector3f(0, 0, 0),
                 1.0F, 1, 0.01F, 100
         ));
