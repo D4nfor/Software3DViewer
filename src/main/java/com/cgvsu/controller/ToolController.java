@@ -142,25 +142,56 @@ public class ToolController {
         });
 
         addCameraButton.setOnAction(e -> {
+            int camIndex = sceneManager.getCameras().size() + 1; // порядковый номер
             Camera newCam = new Camera(
-                    "", new com.cgvsu.utils.math.Vector3f(0, 0, 100),
+                    "Камера " + camIndex,                     // Имя камеры
+                    new com.cgvsu.utils.math.Vector3f(0, 0, 100),
                     new com.cgvsu.utils.math.Vector3f(0, 0, 0),
                     1.0f, 1f, 0.01f, 100f
             );
+
+            // Добавляем камеру в сцену
             sceneManager.addCamera(newCam);
-            cameraComboBox.setValue(sceneManager.getActiveCamera());
+
+            // Добавляем камеру в ComboBox
+            if (!cameraComboBox.getItems().contains(newCam)) {
+                cameraComboBox.getItems().add(newCam);
+            }
+
+            // Сразу делаем её активной
+            sceneManager.setActiveCamera(newCam);
+
+            // Выбираем её в ComboBox
+            cameraComboBox.setValue(newCam);
+
+            // Перерисовка сцены
             mainController.requestRender();
+
+            // Блокировка кнопки удаления, если осталась только одна камера
+            removeCameraButton.setDisable(sceneManager.getCameras().size() <= 1);
         });
+
+
+
+
 
         removeCameraButton.setOnAction(e -> {
             Camera cam = cameraComboBox.getValue();
-            if (cam != null) {
+            if (cam != null && sceneManager.getCameras().size() > 1) { // проверка на >1 камеру
                 sceneManager.removeCamera(cam);
-                Camera firstCam = sceneManager.getCameras().isEmpty() ? null : sceneManager.getCameras().get(0);
+
+                // Переключаемся на первую оставшуюся камеру
+                Camera firstCam = sceneManager.getCameras().get(0);
+                sceneManager.setActiveCamera(firstCam);
                 cameraComboBox.setValue(firstCam);
+
                 mainController.requestRender();
             }
+
+            // Обновляем состояние кнопки удаления
+            removeCameraButton.setDisable(sceneManager.getCameras().size() <= 1);
         });
+
     }
 
     /** Загрузка текстуры */
