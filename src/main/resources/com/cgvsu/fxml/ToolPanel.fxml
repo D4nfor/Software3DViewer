@@ -70,14 +70,9 @@
         <!-- Панель режимов рендера (внизу) -->
         <VBox spacing="8"
               alignment="BOTTOM_LEFT"
-              styleClass="panel-light"
               AnchorPane.bottomAnchor="0"
               AnchorPane.rightAnchor="0"
-              style="-fx-background-color: rgba(0,0,50,0.7);">
-
-            <padding>
-                <Insets top="10" right="10" bottom="10" left="10"/>
-            </padding>
+              style=" -fx-padding: 10; -fx-background-radius: 8;">
 
             <Label text="Режимы отображения"
                    style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: lightgray;"/>
