@@ -8,9 +8,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.MenuBar;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.FileChooser;
 import javafx.scene.image.Image;
 
 import java.util.Objects;
@@ -35,6 +35,8 @@ public class MenuController {
         this.transformController = transformController;
     }
 
+    // ------------------ МЕНЮ: МОДЕЛЬ ------------------
+
     @FXML
     private void onOpenModelMenuItemClick() {
         modelManager.openModelFile(
@@ -57,7 +59,7 @@ public class MenuController {
 
         Model toSave = choice.get().equals("Преобразованная")
                 ? sceneManager.getTransformedModel()
-                : sceneManager.getActiveModel();;
+                : currentModel;
 
         modelManager.saveModelFile(
                 menuBar.getScene().getWindow(),
@@ -67,78 +69,18 @@ public class MenuController {
         );
     }
 
+    // Добавление модели в сцену после загрузки
     private void onModelLoaded(Model model) {
-        // просто добавляем модель и делаем её активной
         sceneManager.addModel(model);
         sceneManager.setActiveModel(model);
-
-        // текстура теперь хранится в модели, глобальный TextureStorage не нужен
         mainController.requestRender();
     }
-
-
-
-
 
     private void onModelLoadError(String errorMessage) {
         showCustomAlert("Ошибка", errorMessage);
     }
 
-    private void showCustomAlert(String title, String message) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cgvsu/fxml/AlertDialog.fxml"));
-            Parent root = loader.load();
-            AlertDialogController controller = loader.getController();
-
-            controller.setHeaderText(title);
-            controller.setContentText(message);
-
-            controller.editButtons(false);
-
-            Stage stage = new Stage();
-            stage.setTitle(title);
-            stage.initOwner(menuBar.getScene().getWindow());
-            stage.initModality(Modality.WINDOW_MODAL);
-            stage.setScene(new Scene(root));
-            stage.getScene().getStylesheets().add(
-                    Objects.requireNonNull(getClass().getResource("/com/cgvsu/css/style.css")).toExternalForm()
-            );
-            stage.showAndWait();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private Optional<String> showSaveModelDialog() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cgvsu/fxml/AlertDialog.fxml"));
-            Parent root = loader.load();
-            AlertDialogController controller = loader.getController();
-
-            controller.setHeaderText("Сохранение модели");
-            controller.setContentText("Хотите сохранить исходную модель или преобразованную?");
-
-            controller.editButtons(true);
-
-            Stage stage = new Stage();
-            stage.setTitle("Сохранение модели");
-            stage.initOwner(menuBar.getScene().getWindow());
-            stage.initModality(Modality.WINDOW_MODAL);
-            stage.setScene(new Scene(root));
-            stage.getScene().getStylesheets().add(
-                    Objects.requireNonNull(getClass().getResource("/com/cgvsu/css/style.css")).toExternalForm()
-            );
-
-            stage.showAndWait();
-
-            return Optional.ofNullable(controller.getResult());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Optional.empty();
-        }
-    }
+    // ------------------ МЕНЮ: ТЕКСТУРЫ ------------------
 
     @FXML
     private void onOpenTextureMenuItemClick() {
@@ -156,10 +98,65 @@ public class MenuController {
         var file = fileChooser.showOpenDialog(menuBar.getScene().getWindow());
         if (file != null) {
             Image img = new Image(file.toURI().toString());
-            activeModel.setTexture(img); // теперь текстура привязана к модели
+            activeModel.setTexture(img);
             mainController.requestRender();
         }
     }
 
+    // ------------------ УТИЛИТЫ ------------------
 
+    /** Показ модального окна с сообщением */
+    private void showCustomAlert(String title, String message) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cgvsu/fxml/AlertDialog.fxml"));
+            Parent root = loader.load();
+            AlertDialogController controller = loader.getController();
+
+            controller.setHeaderText(title);
+            controller.setContentText(message);
+            controller.editButtons(false);
+
+            Stage stage = new Stage();
+            stage.setTitle(title);
+            stage.initOwner(menuBar.getScene().getWindow());
+            stage.initModality(Modality.WINDOW_MODAL);
+            stage.setScene(new Scene(root));
+            stage.getScene().getStylesheets().add(
+                    Objects.requireNonNull(getClass().getResource("/com/cgvsu/css/style.css")).toExternalForm()
+            );
+            stage.showAndWait();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /** Диалог выбора, какую модель сохранить */
+    private Optional<String> showSaveModelDialog() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cgvsu/fxml/AlertDialog.fxml"));
+            Parent root = loader.load();
+            AlertDialogController controller = loader.getController();
+
+            controller.setHeaderText("Сохранение модели");
+            controller.setContentText("Хотите сохранить исходную модель или преобразованную?");
+            controller.editButtons(true);
+
+            Stage stage = new Stage();
+            stage.setTitle("Сохранение модели");
+            stage.initOwner(menuBar.getScene().getWindow());
+            stage.initModality(Modality.WINDOW_MODAL);
+            stage.setScene(new Scene(root));
+            stage.getScene().getStylesheets().add(
+                    Objects.requireNonNull(getClass().getResource("/com/cgvsu/css/style.css")).toExternalForm()
+            );
+            stage.showAndWait();
+
+            return Optional.ofNullable(controller.getResult());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Optional.empty();
+        }
+    }
 }

@@ -2,8 +2,7 @@ package com.cgvsu.render_engine.rendering;
 
 import com.cgvsu.model.Model;
 import com.cgvsu.render_engine.Camera;
-import com.cgvsu.render_engine.Rasterizer;
-import com.cgvsu.render_engine.ZBuffer;
+import com.cgvsu.render_engine.utils.Rasterizer;
 import com.cgvsu.render_engine.transform.Transform;
 import com.cgvsu.utils.math.Matrix4f;
 import com.cgvsu.utils.math.Vector3f;
@@ -15,8 +14,12 @@ import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 
-import static com.cgvsu.render_engine.VertexProjector.projectPolygon;
+import static com.cgvsu.render_engine.utils.VertexProjector.projectPolygon;
 
+/**
+ * Основной рендерер. Рисует модели с учётом настроек RenderSettings.
+ * Может работать в "быстром" режиме, с текстурой и освещением, а также рисовать каркас.
+ */
 public class Renderer implements RendererImpl {
 
     @Override
@@ -60,6 +63,7 @@ public class Renderer implements RendererImpl {
         }
     }
 
+    /** Быстрая отрисовка без текстур и освещения */
     private void drawFast(GraphicsContext gc,
                           Model model,
                           Matrix4f mvp,
@@ -85,6 +89,7 @@ public class Renderer implements RendererImpl {
         }
     }
 
+    /** Отрисовка с использованием растеризатора, текстур и освещения */
     private void drawWithRasterizer(GraphicsContext gc,
                                     Model model,
                                     Matrix4f mvp,
@@ -115,6 +120,7 @@ public class Renderer implements RendererImpl {
         gc.drawImage(frame, 0, 0);
     }
 
+    /** Рисует каркас модели */
     private void drawWireframe(GraphicsContext gc,
                                Model model,
                                Matrix4f mvp,
@@ -134,11 +140,12 @@ public class Renderer implements RendererImpl {
         }
     }
 
+    /** Применяет Transform к модели и возвращает новую копию */
     @Override
     public Model applyTransform(Model model, Transform transform) {
         if (model == null) return null;
 
-        Model transformedModel = new Model(model);
+        Model transformedModel = new Model(model); // копия модели
 
         for (int i = 0; i < transformedModel.getVertices().size(); i++) {
             Vector3f v = transformedModel.getVertices().get(i);

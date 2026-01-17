@@ -15,21 +15,16 @@ public class DefaultInputManager implements InputManagerImpl {
     private boolean middleMousePressed = false;
     private double lastMouseX, lastMouseY;
 
-    private float rotateSensitivity = 0.005f;  // для вращений и орбиты
-    private float moveMouseSensitivity = 0.05f; // для сдвига мышью (Shift)
-    private float moveSpeed = 0.5f;           // WASD, Space, Shift
+    private float rotateSensitivity = 0.005f;   // вращение камеры
+    private float moveMouseSensitivity = 0.05f; // сдвиг мышью (Shift)
+    private float moveSpeed = 0.5f;             // WASD, Space, Shift
 
-    private Runnable onOpenModel;
-    private Runnable onSaveModel;
-    private Runnable onShowTransformPanel;
-    private Runnable onHideTransformPanel;
-    private Runnable onRenderRequest;
+    private Runnable onOpenModel, onSaveModel, onShowTransformPanel, onHideTransformPanel, onRenderRequest;
 
     public DefaultInputManager(SceneManager sceneManager) {
         this.sceneManager = sceneManager;
     }
 
-    /** Получаем текущую активную камеру */
     private Camera getCamera() {
         return sceneManager.getActiveCamera();
     }
@@ -64,6 +59,7 @@ public class DefaultInputManager implements InputManagerImpl {
 
         boolean cameraMoved = false;
 
+        // горячие клавиши с Ctrl
         if (event.isControlDown()) {
             switch (event.getCode()) {
                 case O -> { if (onOpenModel != null) { onOpenModel.run(); event.consume(); return; } }
@@ -73,6 +69,7 @@ public class DefaultInputManager implements InputManagerImpl {
             }
         }
 
+        // движение камеры
         switch (event.getCode()) {
             case W -> { camera.moveForward(moveSpeed); cameraMoved = true; }
             case S -> { camera.moveBackward(moveSpeed); cameraMoved = true; }
@@ -83,9 +80,7 @@ public class DefaultInputManager implements InputManagerImpl {
             case R -> { resetCamera(camera); cameraMoved = true; }
         }
 
-        if (cameraMoved && onRenderRequest != null) {
-            onRenderRequest.run();
-        }
+        if (cameraMoved && onRenderRequest != null) onRenderRequest.run();
     }
 
     private void resetCamera(Camera camera) {
@@ -116,6 +111,7 @@ public class DefaultInputManager implements InputManagerImpl {
         double deltaX = event.getSceneX() - lastMouseX;
         double deltaY = event.getSceneY() - lastMouseY;
 
+        // сдвиг, вращение, орбита
         if (event.isShiftDown()) {
             camera.moveRight((float) (-deltaX * moveMouseSensitivity));
             camera.moveUp((float) (deltaY * moveMouseSensitivity));

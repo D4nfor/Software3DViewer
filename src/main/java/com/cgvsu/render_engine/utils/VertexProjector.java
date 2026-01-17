@@ -1,4 +1,4 @@
-package com.cgvsu.render_engine;
+package com.cgvsu.render_engine.utils;
 
 import com.cgvsu.model.Model;
 import com.cgvsu.model.Polygon;
@@ -11,8 +11,22 @@ import java.util.ArrayList;
 
 import static com.cgvsu.render_engine.GraphicConveyor.multiplyMatrix4ByVector4;
 
+/**
+ * Класс для проекции вершин полигона из мировой системы координат
+ * в экранное пространство с учетом матрицы MVP (Model-View-Projection).
+ */
 public class VertexProjector {
 
+    /**
+     * Проецирует вершины полигона в экранное пространство.
+     *
+     * @param model   Модель, содержащая вершины, текстуры и нормали
+     * @param polygon Полигон, который нужно спроецировать
+     * @param mvp     Матрица Model-View-Projection
+     * @param width   Ширина канвы/экрана
+     * @param height  Высота канвы/экрана
+     * @return Список экранных вершин с текстурными координатами и нормалями
+     */
     public static ArrayList<Vertex> projectPolygon(
             Model model,
             Polygon polygon,
@@ -22,41 +36,37 @@ public class VertexProjector {
     ) {
         ArrayList<Vertex> result = new ArrayList<>();
 
+        // Проходим по всем вершинам полигона
         for (int i = 0; i < polygon.getVertexIndices().size(); i++) {
             int vi = polygon.getVertexIndices().get(i);
 
-            // мировая позиция вершины
+            // Мировая позиция вершины
             Vector3f worldPos = model.getVertices().get(vi);
 
-            // нормаль вершины (уже усреднённая)
+            // Нормаль вершины (усреднённая по полигонам)
             Vector3f normal = model.getNormals().get(vi).normalize();
 
-            // проекция в clip space
+            // Преобразуем в clip space через MVP
             Vector4f clip = multiplyMatrix4ByVector4(
                     mvp,
-                    new Vector4f(
-                            worldPos.getX(),
-                            worldPos.getY(),
-                            worldPos.getZ(),
-                            1.0f
-                    )
+                    new Vector4f(worldPos.getX(), worldPos.getY(), worldPos.getZ(), 1.0f)
             );
 
-            if (Math.abs(clip.getW()) < 1e-6f) {
-                continue;
-            }
+            // Проверка на деление на ноль (W близко к нулю)
+            if (Math.abs(clip.getW()) < 1e-6f) continue;
 
             float invW = 1.0f / clip.getW();
 
+            // Нормализованные координаты устройства (NDC)
             float ndcX = clip.getX() * invW;
             float ndcY = clip.getY() * invW;
             float ndcZ = clip.getZ() * invW;
 
-            // экранные координаты
+            // Преобразуем в экранные координаты
             float screenX = (ndcX + 1.0f) * 0.5f * width;
             float screenY = (1.0f - ndcY) * 0.5f * height;
 
-            // текстурные координаты (если есть)
+            // Текстурные координаты (если есть)
             float u = 0.0f;
             float vTex = 0.0f;
 
@@ -68,6 +78,7 @@ public class VertexProjector {
                 }
             }
 
+            // Добавляем вершину в результат
             result.add(new Vertex(
                     screenX,
                     screenY,

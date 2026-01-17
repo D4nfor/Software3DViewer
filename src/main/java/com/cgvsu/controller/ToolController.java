@@ -1,10 +1,10 @@
 package com.cgvsu.controller;
 
-import com.cgvsu.manager.*;
+import com.cgvsu.manager.SceneManager;
+import com.cgvsu.manager.UIManager;
 import com.cgvsu.model.Model;
 import com.cgvsu.render_engine.Camera;
 import com.cgvsu.render_engine.rendering.RenderSettings;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -16,23 +16,15 @@ import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.UUID;
 
 public class ToolController {
 
     @FXML private StackPane contentPane;
-    @FXML private Button transformButton;
-    @FXML private Button deleteButton;
-    @FXML private Button modelsButton;
-    @FXML private CheckBox wireframeCheckBox;
-    @FXML private CheckBox textureCheckBox;
-    @FXML private CheckBox lightingCheckBox;
+    @FXML private Button transformButton, deleteButton, modelsButton;
+    @FXML private CheckBox wireframeCheckBox, textureCheckBox, lightingCheckBox;
     @FXML private ColorPicker baseColorPicker;
-
     @FXML private ComboBox<Camera> cameraComboBox;
-    @FXML private Button addCameraButton;
-    @FXML private Button removeCameraButton;
+    @FXML private Button addCameraButton, removeCameraButton;
 
     private TransformController transformController;
     private DeletionController deletionController;
@@ -50,14 +42,52 @@ public class ToolController {
 
     @FXML
     private void initialize() {
-        loadPanels();
-        showModelsPanel();
-
-        setupCameraControls();
-        setupRenderSettings();
+        loadPanels();          // загружаем панели
+        showModelsPanel();      // по умолчанию Models
+        setupCameraControls();  // камеры
+        setupRenderSettings();  // галочки и ColorPicker
     }
 
-    /** Настройка галочек и ColorPicker */
+    /** Универсальная загрузка панели */
+    private <T> T loadPanel(String fxmlPath, Class<T> controllerClass) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            loader.setControllerFactory(type -> {
+                if (type == controllerClass) {
+                    try {
+                        if (controllerClass == TransformController.class)
+                            return controllerClass.cast(new TransformController(sceneManager, uiManager));
+                        if (controllerClass == DeletionController.class)
+                            return controllerClass.cast(new DeletionController(sceneManager, uiManager));
+                        if (controllerClass == ModelsController.class)
+                            return controllerClass.cast(new ModelsController(sceneManager, uiManager));
+                    } catch (Exception e) { throw new RuntimeException(e); }
+                }
+                try { return type.getDeclaredConstructor().newInstance(); }
+                catch (Exception e) { throw new RuntimeException(e); }
+            });
+
+            Node root = loader.load();
+            contentPane.getChildren().add(root); // добавляем Node
+            return loader.getController();
+
+        } catch (Exception e) {
+            throw new RuntimeException("Не удалось загрузить панель: " + fxmlPath, e);
+        }
+    }
+
+    /** Загрузка всех панелей */
+    private void loadPanels() {
+        transformController = loadPanel("/com/cgvsu/fxml/TransformPanel.fxml", TransformController.class);
+        deletionController = loadPanel("/com/cgvsu/fxml/DeletionPanel.fxml", DeletionController.class);
+        modelsController = loadPanel("/com/cgvsu/fxml/ModelsPanel.fxml", ModelsController.class);
+
+        transformController.hidePanel();
+        deletionController.hidePanel();
+        modelsController.hidePanel();
+    }
+
+    /** Настройка галочек и цвета */
     private void setupRenderSettings() {
         RenderSettings settings = sceneManager.getRenderSettings();
 
@@ -79,9 +109,8 @@ public class ToolController {
                     return;
                 }
                 settings.setUseTexture(true);
-            } else {
-                settings.setUseTexture(false);
-            }
+            } else settings.setUseTexture(false);
+
             settings.setBaseColor(baseColorPicker.getValue());
             mainController.requestRender();
         });
@@ -101,14 +130,10 @@ public class ToolController {
 
     /** Настройка панели камер */
     private void setupCameraControls() {
-        // Сначала загружаем существующие камеры
         ObservableList<Camera> cameras = sceneManager.getCameras();
         cameraComboBox.setItems(cameras);
-
-        // Выбираем активную камеру
         cameraComboBox.setValue(sceneManager.getActiveCamera());
 
-        // При смене выбора
         cameraComboBox.valueProperty().addListener((obs, oldCam, newCam) -> {
             if (newCam != null) {
                 sceneManager.setActiveCamera(newCam);
@@ -116,24 +141,17 @@ public class ToolController {
             }
         });
 
-        // Кнопка добавления камеры
         addCameraButton.setOnAction(e -> {
             Camera newCam = new Camera(
-                    "", // имя оставляем пустым, SceneManager сгенерирует
-                    new com.cgvsu.utils.math.Vector3f(0, 0, 100),
+                    "", new com.cgvsu.utils.math.Vector3f(0, 0, 100),
                     new com.cgvsu.utils.math.Vector3f(0, 0, 0),
-                    1.0f,
-                    1f,
-                    0.01f,
-                    100f
+                    1.0f, 1f, 0.01f, 100f
             );
             sceneManager.addCamera(newCam);
-            cameraComboBox.setValue(sceneManager.getActiveCamera()); // сразу выбрать
+            cameraComboBox.setValue(sceneManager.getActiveCamera());
             mainController.requestRender();
         });
 
-
-        // Кнопка удаления камеры
         removeCameraButton.setOnAction(e -> {
             Camera cam = cameraComboBox.getValue();
             if (cam != null) {
@@ -145,7 +163,7 @@ public class ToolController {
         });
     }
 
-    /** Загрузка текстуры через диалог выбора файла */
+    /** Загрузка текстуры */
     @FXML
     private void loadTexture() {
         Model activeModel = sceneManager.getActiveModel();
@@ -164,57 +182,14 @@ public class ToolController {
                 Image img = new Image(file.toURI().toString());
                 activeModel.setTexture(img);
                 mainController.showAlert("Текстура загружена",
-                        "Текстура успешно загружена. Включите галочку 'Использовать текстуру', чтобы отобразить её.");
+                        "Включите галочку 'Использовать текстуру', чтобы отобразить её.");
             } catch (Exception ex) {
                 mainController.showAlert("Ошибка загрузки", "Не удалось загрузить текстуру: " + ex.getMessage());
             }
         }
     }
 
-    /** Загрузка сменяемых панелей (Transform, Deletion, Models) */
-    private void loadPanels() {
-        try {
-            // Transform Panel
-            FXMLLoader transformLoader = new FXMLLoader(getClass().getResource("/com/cgvsu/fxml/TransformPanel.fxml"));
-            transformLoader.setControllerFactory(type -> {
-                if (type == TransformController.class) return new TransformController(sceneManager, uiManager);
-                try { return type.getDeclaredConstructor().newInstance(); }
-                catch (Exception e) { throw new RuntimeException(e); }
-            });
-            Node transformNode = transformLoader.load();
-            transformController = transformLoader.getController();
-            transformNode.setVisible(false);
-            contentPane.getChildren().add(transformNode);
-
-            // Deletion Panel
-            FXMLLoader deletionLoader = new FXMLLoader(getClass().getResource("/com/cgvsu/fxml/DeletionPanel.fxml"));
-            deletionLoader.setControllerFactory(type -> {
-                if (type == DeletionController.class) return new DeletionController(sceneManager, uiManager);
-                try { return type.getDeclaredConstructor().newInstance(); }
-                catch (Exception e) { throw new RuntimeException(e); }
-            });
-            Node deletionNode = deletionLoader.load();
-            deletionController = deletionLoader.getController();
-            deletionNode.setVisible(false);
-            contentPane.getChildren().add(deletionNode);
-
-            // Models Panel
-            FXMLLoader modelsLoader = new FXMLLoader(getClass().getResource("/com/cgvsu/fxml/ModelsPanel.fxml"));
-            modelsLoader.setControllerFactory(type -> {
-                if (type == ModelsController.class) return new ModelsController(sceneManager, uiManager);
-                try { return type.getDeclaredConstructor().newInstance(); }
-                catch (Exception e) { throw new RuntimeException(e); }
-            });
-            Node modelsNode = modelsLoader.load();
-            modelsController = modelsLoader.getController();
-            modelsNode.setVisible(false);
-            contentPane.getChildren().add(modelsNode);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
+    /** Панели переключения */
     @FXML private void showTransformPanel() {
         transformController.showPanel();
         deletionController.hidePanel();
@@ -236,6 +211,7 @@ public class ToolController {
         updateMenuButtonStyles(false, false, true);
     }
 
+    /** Стили для кнопок меню */
     private void updateMenuButtonStyles(boolean transformActive, boolean deleteActive, boolean modelsActive) {
         transformButton.getStyleClass().removeAll("button-primary", "button-secondary");
         deleteButton.getStyleClass().removeAll("button-primary", "button-secondary");

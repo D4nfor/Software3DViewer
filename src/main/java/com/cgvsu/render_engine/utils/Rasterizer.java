@@ -1,5 +1,6 @@
-package com.cgvsu.render_engine;
+package com.cgvsu.render_engine.utils;
 
+import com.cgvsu.render_engine.rendering.ZBuffer;
 import com.cgvsu.utils.math.Vector3f;
 import com.cgvsu.utils.math.Vertex;
 import javafx.scene.image.Image;
@@ -8,14 +9,29 @@ import javafx.scene.paint.Color;
 
 import java.util.List;
 
+/**
+ * Простейший растеризатор для треугольников.
+ * Поддерживает:
+ * - Z-буфер
+ * - текстуры (с интерполяцией)
+ * - простое освещение
+ */
 public class Rasterizer {
 
-    private static final float K = 0.7f;
-    private static final float AMBIENT = 1.0f - K;
+    private static final float K = 0.7f;               // коэффициент диффузного освещения
+    private static final float AMBIENT = 1.0f - K;     // коэффициент фонового освещения
     private static final Color FILL_COLOR = Color.LIGHTGRAY;
 
-    // ================= PUBLIC API =================
 
+    /**
+     * Разбивает многоугольник на треугольники и растеризует каждый
+     *
+     * @param vertices вершины полигона
+     * @param zBuffer  буфер глубины
+     * @param pw       объект для записи пикселей
+     * @param texture  текстура (может быть null)
+     * @param lightPos позиция источника света
+     */
     public static void triangulateAndRasterize(
             List<Vertex> vertices,
             ZBuffer zBuffer,
@@ -23,12 +39,9 @@ public class Rasterizer {
             Image texture,
             Vector3f lightPos
     ) {
-        if (vertices.size() < 3) {
-            return;
-        }
+        if (vertices.size() < 3) return;
 
         Vertex v0 = vertices.get(0);
-
         for (int i = 1; i < vertices.size() - 1; i++) {
             rasterizeTriangle(
                     v0,
@@ -42,8 +55,10 @@ public class Rasterizer {
         }
     }
 
-    // ================= CORE =================
 
+    /**
+     * Растеризация треугольника с использованием barycentric координат
+     */
     private static void rasterizeTriangle(
             Vertex v0,
             Vertex v1,
@@ -53,29 +68,34 @@ public class Rasterizer {
             Image tex,
             Vector3f lightPos
     ) {
+        // ограничивающий прямоугольник
         int minX = (int) Math.max(0, Math.floor(Math.min(v0.x, Math.min(v1.x, v2.x))));
         int maxX = (int) Math.min(zBuffer.getWidth() - 1, Math.ceil(Math.max(v0.x, Math.max(v1.x, v2.x))));
         int minY = (int) Math.max(0, Math.floor(Math.min(v0.y, Math.min(v1.y, v2.y))));
         int maxY = (int) Math.min(zBuffer.getHeight() - 1, Math.ceil(Math.max(v0.y, Math.max(v1.y, v2.y))));
 
         float area = edge(v0.x, v0.y, v1.x, v1.y, v2.x, v2.y);
-        if (Math.abs(area) < 1e-6f) return;
+        if (Math.abs(area) < 1e-6f) return; // вырожденный треугольник
 
+        // перебор всех пикселей bounding box
         for (int y = minY; y <= maxY; y++) {
             for (int x = minX; x <= maxX; x++) {
 
                 float px = x + 0.5f;
                 float py = y + 0.5f;
 
+                // barycentric координаты
                 float w0 = edge(v1.x, v1.y, v2.x, v2.y, px, py) / area;
                 float w1 = edge(v2.x, v2.y, v0.x, v0.y, px, py) / area;
                 float w2 = edge(v0.x, v0.y, v1.x, v1.y, px, py) / area;
 
-                if (w0 < 0 || w1 < 0 || w2 < 0) continue;
+                if (w0 < 0 || w1 < 0 || w2 < 0) continue; // вне треугольника
 
+                // интерполяция Z
                 float z = w0 * v0.z + w1 * v1.z + w2 * v2.z;
-                if (!zBuffer.testAndSet(x, y, z)) continue;
+                if (!zBuffer.testAndSet(x, y, z)) continue; // проверка Z
 
+                // интерполяция позиции в мире и нормали
                 Vector3f worldPos =
                         v0.worldPos.multiply(w0)
                                 .add(v1.worldPos.multiply(w1))
@@ -87,6 +107,7 @@ public class Rasterizer {
                                 .add(v2.normal.multiply(w2))
                                 .normalize();
 
+                // освещение
                 Vector3f lightDir = lightPos.subtract(worldPos).normalize();
                 float l = Math.max(0.0f, normal.dot(lightDir));
                 float intensity = AMBIENT + K * l;
@@ -94,20 +115,10 @@ public class Rasterizer {
                 Color finalColor;
 
                 if (tex != null) {
-                    float invW =
-                            w0 * v0.invW +
-                                    w1 * v1.invW +
-                                    w2 * v2.invW;
-
-                    float u =
-                            (w0 * v0.u * v0.invW +
-                                    w1 * v1.u * v1.invW +
-                                    w2 * v2.u * v2.invW) / invW;
-
-                    float v =
-                            (w0 * v0.v * v0.invW +
-                                    w1 * v1.v * v1.invW +
-                                    w2 * v2.v * v2.invW) / invW;
+                    // интерполяция текстурных координат с учетом перспективы
+                    float invW = w0 * v0.invW + w1 * v1.invW + w2 * v2.invW;
+                    float u = (w0 * v0.u * v0.invW + w1 * v1.u * v1.invW + w2 * v2.u * v2.invW) / invW;
+                    float v = (w0 * v0.v * v0.invW + w1 * v1.v * v1.invW + w2 * v2.v * v2.invW) / invW;
 
                     int tx = clamp((float) (u * (tex.getWidth() - 1)), 0, (int) tex.getWidth() - 1);
                     int ty = clamp((float) ((1 - v) * (tex.getHeight() - 1)), 0, (int) tex.getHeight() - 1);
@@ -121,6 +132,7 @@ public class Rasterizer {
                             tc.getOpacity()
                     );
                 } else {
+                    // однотонный цвет с освещением
                     finalColor = FILL_COLOR.interpolate(Color.BLACK, 1.0 - intensity);
                 }
 
@@ -131,14 +143,17 @@ public class Rasterizer {
 
     // ================= HELPERS =================
 
+    /** Вспомогательная функция для barycentric координат */
     private static float edge(float x0, float y0, float x1, float y1, float x2, float y2) {
         return (x2 - x0) * (y1 - y0) - (y2 - y0) * (x1 - x0);
     }
 
+    /** Ограничение int в диапазоне */
     private static int clamp(float v, int min, int max) {
         return (int) Math.max(min, Math.min(max, v));
     }
 
+    /** Ограничение double в [0,1] */
     private static double clamp01(double v) {
         return Math.max(0.0, Math.min(1.0, v));
     }

@@ -2,17 +2,41 @@ package com.cgvsu.render_engine.rendering;
 
 import javafx.scene.paint.Color;
 
+/**
+ * Настройки рендеринга модели.
+ * Позволяет включать/отключать каркас, текстуру, освещение и задавать базовый цвет.
+ */
 public class RenderSettings {
+
+    /** Рисовать модель в виде каркаса (wireframe) */
     private boolean wireframe = false;
+
+    /** Использовать текстуру модели */
     private boolean useTexture = false;
+
+    /** Использовать освещение при рендеринге */
     private boolean useLighting = false;
+
+    /** Базовый цвет для модели (если нет текстуры или wireframe) */
     private Color baseColor = Color.GRAY;
-    private boolean textureLoaded = false; // текстура загружена
 
-    public boolean isTextureLoaded() { return textureLoaded; }
-    public void setTextureLoaded(boolean loaded) { this.textureLoaded = loaded; }
+    /** Флаг, указывающий, что текстура уже загружена */
+    private boolean textureLoaded = false;
 
-    // wireframe
+    // -----------------------
+    // Texture loaded
+    // -----------------------
+    public boolean isTextureLoaded() {
+        return textureLoaded;
+    }
+
+    public void setTextureLoaded(boolean loaded) {
+        this.textureLoaded = loaded;
+    }
+
+    // -----------------------
+    // Wireframe
+    // -----------------------
     public boolean isWireframe() {
         return wireframe;
     }
@@ -21,7 +45,9 @@ public class RenderSettings {
         this.wireframe = wireframe;
     }
 
-    // useTexture
+    // -----------------------
+    // Use texture
+    // -----------------------
     public boolean isUseTexture() {
         return useTexture;
     }
@@ -30,7 +56,9 @@ public class RenderSettings {
         this.useTexture = useTexture;
     }
 
-    // useLighting
+    // -----------------------
+    // Use lighting
+    // -----------------------
     public boolean isUseLighting() {
         return useLighting;
     }
@@ -39,7 +67,9 @@ public class RenderSettings {
         this.useLighting = useLighting;
     }
 
-    // baseColor
+    // -----------------------
+    // Base color
+    // -----------------------
     public Color getBaseColor() {
         return baseColor;
     }

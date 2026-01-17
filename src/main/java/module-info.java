@@ -27,4 +27,6 @@ module com.cgvsu {
     opens com.cgvsu.render_engine.rendering to javafx.fxml;
     exports com.cgvsu.render_engine.transform;
     opens com.cgvsu.render_engine.transform to javafx.fxml;
+    exports com.cgvsu.render_engine.utils;
+    opens com.cgvsu.render_engine.utils to javafx.fxml;
 }
