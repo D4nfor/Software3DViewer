@@ -37,7 +37,9 @@ public class Rasterizer {
             ZBuffer zBuffer,
             PixelWriter pw,
             Image texture,
-            Vector3f lightPos
+            Vector3f lightPos,
+            javafx.scene.paint.Color baseColor, // базовый цвет
+            boolean lightingEnabled            // флаг освещения
     ) {
         if (vertices.size() < 3) return;
 
@@ -50,10 +52,13 @@ public class Rasterizer {
                     zBuffer,
                     pw,
                     texture,
-                    lightPos
+                    lightPos,
+                    baseColor,
+                    lightingEnabled
             );
         }
     }
+
 
 
     /**
@@ -66,7 +71,9 @@ public class Rasterizer {
             ZBuffer zBuffer,
             PixelWriter pw,
             Image tex,
-            Vector3f lightPos
+            Vector3f lightPos,
+            javafx.scene.paint.Color modelBaseColor,  // базовый цвет модели
+            boolean lightingEnabled                   // включено ли освещение
     ) {
         // ограничивающий прямоугольник
         int minX = (int) Math.max(0, Math.floor(Math.min(v0.x, Math.min(v1.x, v2.x))));
@@ -77,45 +84,33 @@ public class Rasterizer {
         float area = edge(v0.x, v0.y, v1.x, v1.y, v2.x, v2.y);
         if (Math.abs(area) < 1e-6f) return; // вырожденный треугольник
 
-        // перебор всех пикселей bounding box
         for (int y = minY; y <= maxY; y++) {
             for (int x = minX; x <= maxX; x++) {
 
                 float px = x + 0.5f;
                 float py = y + 0.5f;
 
-                // barycentric координаты
                 float w0 = edge(v1.x, v1.y, v2.x, v2.y, px, py) / area;
                 float w1 = edge(v2.x, v2.y, v0.x, v0.y, px, py) / area;
                 float w2 = edge(v0.x, v0.y, v1.x, v1.y, px, py) / area;
 
-                if (w0 < 0 || w1 < 0 || w2 < 0) continue; // вне треугольника
+                if (w0 < 0 || w1 < 0 || w2 < 0) continue;
 
-                // интерполяция Z
                 float z = w0 * v0.z + w1 * v1.z + w2 * v2.z;
-                if (!zBuffer.testAndSet(x, y, z)) continue; // проверка Z
+                if (!zBuffer.testAndSet(x, y, z)) continue;
 
-                // интерполяция позиции в мире и нормали
-                Vector3f worldPos =
-                        v0.worldPos.multiply(w0)
-                                .add(v1.worldPos.multiply(w1))
-                                .add(v2.worldPos.multiply(w2));
+                Vector3f worldPos = v0.worldPos.multiply(w0)
+                        .add(v1.worldPos.multiply(w1))
+                        .add(v2.worldPos.multiply(w2));
 
-                Vector3f normal =
-                        v0.normal.multiply(w0)
-                                .add(v1.normal.multiply(w1))
-                                .add(v2.normal.multiply(w2))
-                                .normalize();
-
-                // освещение
-                Vector3f lightDir = lightPos.subtract(worldPos).normalize();
-                float l = Math.max(0.0f, normal.dot(lightDir));
-                float intensity = AMBIENT + K * l;
+                Vector3f normal = v0.normal.multiply(w0)
+                        .add(v1.normal.multiply(w1))
+                        .add(v2.normal.multiply(w2))
+                        .normalize();
 
                 Color finalColor;
 
                 if (tex != null) {
-                    // интерполяция текстурных координат с учетом перспективы
                     float invW = w0 * v0.invW + w1 * v1.invW + w2 * v2.invW;
                     float u = (w0 * v0.u * v0.invW + w1 * v1.u * v1.invW + w2 * v2.u * v2.invW) / invW;
                     float v = (w0 * v0.v * v0.invW + w1 * v1.v * v1.invW + w2 * v2.v * v2.invW) / invW;
@@ -125,6 +120,8 @@ public class Rasterizer {
 
                     Color tc = tex.getPixelReader().getColor(tx, ty);
 
+                    float intensity = lightingEnabled ? AMBIENT + K * Math.max(0, normal.dot(lightPos.subtract(worldPos).normalize())) : 1.0f;
+
                     finalColor = new Color(
                             clamp01(tc.getRed() * intensity),
                             clamp01(tc.getGreen() * intensity),
@@ -132,14 +129,21 @@ public class Rasterizer {
                             tc.getOpacity()
                     );
                 } else {
-                    // однотонный цвет с освещением
-                    finalColor = FILL_COLOR.interpolate(Color.BLACK, 1.0 - intensity);
+                    float intensity = lightingEnabled ? AMBIENT + K * Math.max(0, normal.dot(lightPos.subtract(worldPos).normalize())) : 1.0f;
+
+                    finalColor = new Color(
+                            clamp01(modelBaseColor.getRed() * intensity),
+                            clamp01(modelBaseColor.getGreen() * intensity),
+                            clamp01(modelBaseColor.getBlue() * intensity),
+                            modelBaseColor.getOpacity()
+                    );
                 }
 
                 pw.setColor(x, y, finalColor);
             }
         }
     }
+
 
     // ================= HELPERS =================
 

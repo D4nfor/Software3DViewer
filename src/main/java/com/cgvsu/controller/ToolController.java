@@ -46,6 +46,9 @@ public class ToolController {
         showModelsPanel();      // по умолчанию Models
         setupCameraControls();  // камеры
         setupRenderSettings();  // галочки и ColorPicker
+        baseColorPicker.setValue(Color.WHITE); // дефолтный цвет
+        baseColorPicker.setOnAction(e -> updateModelColor());
+        lightingCheckBox.setOnAction(e -> updateModelColor());
     }
 
     /** Универсальная загрузка панели */
@@ -171,10 +174,6 @@ public class ToolController {
             removeCameraButton.setDisable(sceneManager.getCameras().size() <= 1);
         });
 
-
-
-
-
         removeCameraButton.setOnAction(e -> {
             Camera cam = cameraComboBox.getValue();
             if (cam != null && sceneManager.getCameras().size() > 1) { // проверка на >1 камеру
@@ -251,5 +250,21 @@ public class ToolController {
         transformButton.getStyleClass().add(transformActive ? "button-primary" : "button-secondary");
         deleteButton.getStyleClass().add(deleteActive ? "button-primary" : "button-secondary");
         modelsButton.getStyleClass().add(modelsActive ? "button-primary" : "button-secondary");
+    }
+
+    private void updateModelColor() {
+        Model model = sceneManager.getActiveModel();
+        if (model == null) return;
+
+        // Получаем цвет из ColorPicker (JavaFX)
+        javafx.scene.paint.Color fxColor = baseColorPicker.getValue();
+
+        // Применяем к модели прямо как javafx Color
+        model.setBaseColor(fxColor);
+
+        // Включение/выключение освещения
+        model.setLightingEnabled(lightingCheckBox.isSelected());
+
+        mainController.requestRender();
     }
 }

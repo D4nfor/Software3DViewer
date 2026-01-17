@@ -113,7 +113,9 @@ public class Renderer implements RendererImpl {
                     zBuffer,
                     pw,
                     useTexture ? model.getTexture() : null,
-                    actualLight
+                    actualLight,
+                    model.getBaseColor(),
+                    model.isLightingEnabled()
             );
         }
 

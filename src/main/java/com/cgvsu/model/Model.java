@@ -7,7 +7,9 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.image.Image;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 public class Model {
     // --- Основные данные модели ---
@@ -18,6 +20,8 @@ public class Model {
     private String name;                            // Имя модели
     private final ObjectProperty<Transform> transform = new SimpleObjectProperty<>(new Transform()); // Трансформация модели
     private Image texture;                          // Текстура модели
+    private javafx.scene.paint.Color baseColor = javafx.scene.paint.Color.LIGHTGRAY;
+    private boolean lightingEnabled = true; // включение/выключение освещения
 
     // --------------------- Конструкторы ---------------------
 
@@ -290,4 +294,21 @@ public class Model {
 
     public void setTexture(Image texture) { this.texture = texture; }
     public Image getTexture() { return texture; }
+
+    public void setBaseColor(javafx.scene.paint.Color color) {
+        if (color != null) this.baseColor = color;
+    }
+
+    public javafx.scene.paint.Color getBaseColor() {
+        return baseColor;
+    }
+
+    // --- Lighting ---
+    public void setLightingEnabled(boolean enabled) {
+        this.lightingEnabled = enabled;
+    }
+
+    public boolean isLightingEnabled() {
+        return lightingEnabled;
+    }
 }
