@@ -42,11 +42,11 @@ public class ToolController {
 
     @FXML
     private void initialize() {
-        loadPanels();          // загружаем панели
-        showModelsPanel();      // по умолчанию Models
-        setupCameraControls();  // камеры
+        loadPanels();
+        showModelsPanel();
+        setupCameraControls();
         setupRenderSettings();  // галочки и ColorPicker
-        baseColorPicker.setValue(Color.WHITE); // дефолтный цвет
+        baseColorPicker.setValue(Color.WHITE);
         baseColorPicker.setOnAction(e -> updateModelColor());
         lightingCheckBox.setOnAction(e -> updateModelColor());
     }
@@ -71,7 +71,7 @@ public class ToolController {
             });
 
             Node root = loader.load();
-            contentPane.getChildren().add(root); // добавляем Node
+            contentPane.getChildren().add(root);
             return loader.getController();
 
         } catch (Exception e) {
@@ -152,42 +152,27 @@ public class ToolController {
                     new com.cgvsu.utils.math.Vector3f(0, 0, 0),
                     1.0f, 1f, 0.01f, 100f
             );
-
-            // Добавляем камеру в сцену
             sceneManager.addCamera(newCam);
-
-            // Добавляем камеру в ComboBox
             if (!cameraComboBox.getItems().contains(newCam)) {
                 cameraComboBox.getItems().add(newCam);
             }
-
-            // Сразу делаем её активной
             sceneManager.setActiveCamera(newCam);
-
-            // Выбираем её в ComboBox
             cameraComboBox.setValue(newCam);
-
-            // Перерисовка сцены
             mainController.requestRender();
-
-            // Блокировка кнопки удаления, если осталась только одна камера
             removeCameraButton.setDisable(sceneManager.getCameras().size() <= 1);
         });
 
         removeCameraButton.setOnAction(e -> {
             Camera cam = cameraComboBox.getValue();
-            if (cam != null && sceneManager.getCameras().size() > 1) { // проверка на >1 камеру
+            if (cam != null && sceneManager.getCameras().size() > 1) {
                 sceneManager.removeCamera(cam);
 
-                // Переключаемся на первую оставшуюся камеру
                 Camera firstCam = sceneManager.getCameras().get(0);
                 sceneManager.setActiveCamera(firstCam);
                 cameraComboBox.setValue(firstCam);
 
                 mainController.requestRender();
             }
-
-            // Обновляем состояние кнопки удаления
             removeCameraButton.setDisable(sceneManager.getCameras().size() <= 1);
         });
 
@@ -255,16 +240,9 @@ public class ToolController {
     private void updateModelColor() {
         Model model = sceneManager.getActiveModel();
         if (model == null) return;
-
-        // Получаем цвет из ColorPicker (JavaFX)
         javafx.scene.paint.Color fxColor = baseColorPicker.getValue();
-
-        // Применяем к модели прямо как javafx Color
         model.setBaseColor(fxColor);
-
-        // Включение/выключение освещения
         model.setLightingEnabled(lightingCheckBox.isSelected());
-
         mainController.requestRender();
     }
 }
