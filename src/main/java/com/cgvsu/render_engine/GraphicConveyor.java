@@ -178,7 +178,7 @@ public class GraphicConveyor {
         float y_ndc = v.getY();
 
         float x_screen = (x_ndc + 1.0f) * 0.5f * width;
-        float y_screen = (1.0f - (y_ndc + 1.0f) * 0.5f) * height; // <-- ВАЖНО
+        float y_screen = (1.0f - (y_ndc + 1.0f) * 0.5f) * height;
 
         return new Point2f(x_screen, y_screen);
     }

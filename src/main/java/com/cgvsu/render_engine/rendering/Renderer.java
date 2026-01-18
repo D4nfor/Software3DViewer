@@ -4,6 +4,7 @@ import com.cgvsu.model.Model;
 import com.cgvsu.render_engine.Camera;
 import com.cgvsu.render_engine.utils.Rasterizer;
 import com.cgvsu.render_engine.transform.Transform;
+import com.cgvsu.render_engine.utils.VertexProjector;
 import com.cgvsu.utils.math.Matrix4f;
 import com.cgvsu.utils.math.Vector3f;
 import com.cgvsu.utils.math.Vertex;
@@ -59,7 +60,7 @@ public class Renderer implements RendererImpl {
         }
 
         if (settings.isWireframe()) {
-            drawWireframe(gc, model, mvp, width, height);
+            drawWireframeZBuffer(gc, model, mvp, width, height);
         }
     }
 
@@ -123,21 +124,75 @@ public class Renderer implements RendererImpl {
     }
 
     /** Рисует каркас модели */
-    private void drawWireframe(GraphicsContext gc,
-                               Model model,
-                               Matrix4f mvp,
-                               int width,
-                               int height) {
-        gc.setStroke(Color.BLACK);
+    private void drawWireframeZBuffer(GraphicsContext gc,
+                                      Model model,
+                                      Matrix4f mvp,
+                                      int width,
+                                      int height) {
+
+        WritableImage frame = new WritableImage(width, height);
+        PixelWriter pw = frame.getPixelWriter();
+        ZBuffer zBuffer = new ZBuffer(width, height);
 
         for (var polygon : model.getPolygons()) {
-            ArrayList<Vertex> verts = projectPolygon(model, polygon, mvp, width, height);
-            if (verts.size() < 3) continue;
+            ArrayList<Vertex> verts =
+                    VertexProjector.projectPolygon(model, polygon, mvp, width, height);
+
+            if (verts.size() < 2) continue;
 
             for (int i = 0; i < verts.size(); i++) {
                 Vertex v1 = verts.get(i);
                 Vertex v2 = verts.get((i + 1) % verts.size());
-                gc.strokeLine(v1.x, v1.y, v2.x, v2.y);
+
+                drawLineZBuffer(v1, v2, zBuffer, pw);
+            }
+        }
+
+        gc.drawImage(frame, 0, 0);
+    }
+
+    /** Рисует ЧЁРНУЮ линию между двумя вершинами с проверкой Z-буфера */
+    private void drawLineZBuffer(Vertex v1, Vertex v2,
+                                 ZBuffer zBuffer,
+                                 PixelWriter pw) {
+
+        int x0 = Math.round(v1.x);
+        int y0 = Math.round(v1.y);
+        int x1 = Math.round(v2.x);
+        int y1 = Math.round(v2.y);
+
+        int dx = Math.abs(x1 - x0);
+        int dy = Math.abs(y1 - y0);
+        int sx = x0 < x1 ? 1 : -1;
+        int sy = y0 < y1 ? 1 : -1;
+        int err = dx - dy;
+
+        while (true) {
+            // Интерполяция Z по линии
+            float t = (dx + dy == 0) ? 0 :
+                    (float) Math.hypot(x0 - v1.x, y0 - v1.y) /
+                            (float) Math.hypot(v2.x - v1.x, v2.y - v1.y);
+
+            float z = v1.z * (1 - t) + v2.z * t;
+
+            if (x0 >= 0 && x0 < zBuffer.getWidth()
+                    && y0 >= 0 && y0 < zBuffer.getHeight()) {
+
+                if (zBuffer.testAndSet(x0, y0, z)) {
+                    pw.setColor(x0, y0, Color.BLACK);
+                }
+            }
+
+            if (x0 == x1 && y0 == y1) break;
+
+            int e2 = 2 * err;
+            if (e2 > -dy) {
+                err -= dy;
+                x0 += sx;
+            }
+            if (e2 < dx) {
+                err += dx;
+                y0 += sy;
             }
         }
     }
