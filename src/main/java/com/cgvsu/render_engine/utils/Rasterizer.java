@@ -2,7 +2,6 @@ package com.cgvsu.render_engine.utils;
 
 import com.cgvsu.render_engine.rendering.ZBuffer;
 import com.cgvsu.utils.math.Vector3f;
-import com.cgvsu.utils.math.Vertex;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.paint.Color;
@@ -20,7 +19,6 @@ public class Rasterizer {
 
     private static final float K = 0.7f;               // коэффициент диффузного освещения
     private static final float AMBIENT = 1.0f - K;     // коэффициент фонового освещения
-    private static final Color FILL_COLOR = Color.LIGHTGRAY;
 
 
     /**
@@ -58,8 +56,6 @@ public class Rasterizer {
             );
         }
     }
-
-
 
     /**
      * Растеризация треугольника с использованием barycentric координат

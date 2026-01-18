@@ -1,4 +1,6 @@
-package com.cgvsu.utils.math;
+package com.cgvsu.render_engine.utils;
+
+import com.cgvsu.utils.math.Vector3f;
 
 public class Vertex {
     public final float x, y;

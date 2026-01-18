@@ -5,7 +5,6 @@ import com.cgvsu.model.Polygon;
 import com.cgvsu.utils.math.Matrix4f;
 import com.cgvsu.utils.math.Vector3f;
 import com.cgvsu.utils.math.Vector4f;
-import com.cgvsu.utils.math.Vertex;
 
 import java.util.ArrayList;
 

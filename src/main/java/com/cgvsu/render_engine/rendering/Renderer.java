@@ -7,7 +7,7 @@ import com.cgvsu.render_engine.transform.Transform;
 import com.cgvsu.render_engine.utils.VertexProjector;
 import com.cgvsu.utils.math.Matrix4f;
 import com.cgvsu.utils.math.Vector3f;
-import com.cgvsu.utils.math.Vertex;
+import com.cgvsu.render_engine.utils.Vertex;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
