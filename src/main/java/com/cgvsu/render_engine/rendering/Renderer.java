@@ -103,7 +103,9 @@ public class Renderer implements RendererImpl {
         PixelWriter pw = frame.getPixelWriter();
         ZBuffer zBuffer = new ZBuffer(width, height);
 
-        Vector3f actualLight = (useLighting && lightPos != null) ? lightPos : new Vector3f(0, 0, 0);
+        if (!useLighting) {
+            model.setLightingEnabled(false);
+        }
 
         for (var polygon : model.getPolygons()) {
             ArrayList<Vertex> verts = projectPolygon(model, polygon, mvp, width, height);
@@ -114,7 +116,7 @@ public class Renderer implements RendererImpl {
                     zBuffer,
                     pw,
                     useTexture ? model.getTexture() : null,
-                    actualLight,
+                    lightPos,
                     model.getBaseColor(),
                     model.isLightingEnabled()
             );
@@ -151,7 +153,7 @@ public class Renderer implements RendererImpl {
         gc.drawImage(frame, 0, 0);
     }
 
-    /** Рисует ЧЁРНУЮ линию между двумя вершинами с проверкой Z-буфера */
+    /** Рисует линию между двумя вершинами с проверкой Z-буфера */
     private void drawLineZBuffer(Vertex v1, Vertex v2,
                                  ZBuffer zBuffer,
                                  PixelWriter pw) {
